@@ -6,6 +6,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -23,34 +24,33 @@ public class Register extends AppCompatActivity {
     }
 
     public void register(View view) {
-        EditText password = (EditText) findViewById(R.id.editText2);
-        EditText username = (EditText) findViewById(R.id.editText1);
-        TextView register = (TextView)findViewById(R.id.textView3);
+        EditText nome = (EditText) findViewById(R.id.editText1);
+        EditText email = (EditText) findViewById(R.id.editText2);
+        EditText password = (EditText) findViewById(R.id.editText3);
+        EditText password2 = (EditText) findViewById(R.id.editText4);
 
-        if (username.getText().toString().equals("admin")
-                && password.getText().toString().equals("admin")) {
-            Toast.makeText(getApplicationContext(),
-                    "Redirecting...",Toast.LENGTH_SHORT).show();
+        String strNome = nome.getText().toString();
+        String strEmail = email.getText().toString();
+        String strPw = password.getText().toString();
+        String strPw2 = password2.getText().toString();
+
+
+        if(TextUtils.isEmpty(strNome)) {
+            nome.setError("Your Name");
+            return;
+        } else if (TextUtils.isEmpty(strEmail)) {
+            email.setError("Your Email");
+            return;
+        } else if (TextUtils.isEmpty(strPw)) {
+            password.setError("Your Password");
+            return;
+        } else if (TextUtils.isEmpty(strPw2)) {
+            password2.setError("Your Passwords need to match");
+            return;
+        } else {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
-        } else {
-            if (username.getText().toString().trim().length() <= 0 && password.getText().toString().trim().length() <= 0) {
-
-                Toast.makeText(getApplicationContext(), "Wrong Credentials",
-                        Toast.LENGTH_SHORT).show();
-                register.setVisibility(View.VISIBLE);
-            }
-            else if (password.getText().toString().trim().length() <= 0) {
-                Toast.makeText(getApplicationContext(), "You didn't enter a Password",
-                        Toast.LENGTH_SHORT).show();
-            } else if (username.getText().toString().trim().length() <= 0){
-                Toast.makeText(getApplicationContext(), "You didn't enter a Username",
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(getApplicationContext(), "Wrong Username or Password",
-                        Toast.LENGTH_SHORT).show();
-            }
         }
     }
-
 }
+

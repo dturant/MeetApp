@@ -7,18 +7,10 @@
     android:paddingTop = "@dimen/activity_vertical_margin"
     android:paddingBottom = "@dimen/activity_vertical_margin" tools:context="com.example.dagna.meetapp.Login">
 
-    <TextView android:text = "@string/Login" android:layout_width="wrap_content"
-        android:layout_height = "wrap_content"
-        android:id = "@+id/textview"
-        android:textSize = "35dp"
-        android:layout_alignParentTop = "true"
-        android:layout_centerHorizontal = "true" />
-
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/textview"
         android:layout_centerHorizontal="true"
         android:fontFamily="cursive"
         android:text="MeetApp"
@@ -62,12 +54,10 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
         android:text="Click Register to creat an account"
         android:textSize="18sp"
-        android:layout_above="@+id/button"
-        android:layout_alignLeft="@+id/button2"
-        android:layout_alignStart="@+id/button2" />
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/button" />
 
     <Button
         android:layout_width="wrap_content"
@@ -76,9 +66,8 @@
         android:id="@+id/button"
         android:onClick="login"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/textview"
-        android:layout_toEndOf="@+id/textview"
-         />
+        android:layout_toRightOf="@+id/textView"
+        android:layout_toEndOf="@+id/textView" />
 
     <Button
         android:layout_width="wrap_content"
@@ -87,8 +76,8 @@
         android:id="@+id/button2"
         android:onClick="register"
         android:layout_alignParentBottom="true"
-        android:layout_toLeftOf="@+id/textview"
-        android:layout_toStartOf="@+id/textview"/>
+        android:layout_toLeftOf="@+id/textView"
+        android:layout_toStartOf="@+id/textView" />
 
     <ImageView
         android:id="@+id/imageView2"

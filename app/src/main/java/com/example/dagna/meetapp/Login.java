@@ -13,6 +13,8 @@ public class Login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        EditText username = (EditText) findViewById(R.id.editText1);
+        username.setText("admin");
     }
 
     public void login(View view) {
@@ -47,8 +49,6 @@ public class Login extends AppCompatActivity {
     }
 
     public void register(View view) {
-        Toast.makeText(getApplicationContext(),
-                "Redirecting...",Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(this, Register.class);
         startActivity(intent);
     }
