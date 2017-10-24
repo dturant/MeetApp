@@ -10,6 +10,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled = true //added to resolve bugs after pull: Error:Execution failed for task ':app:transformClassesWithDexForDebug'.
+        // com.android.build.api.transform.TransformException: com.android.ide.common.process.ProcessException: java.util.concurrent.ExecutionException: com.android.dex.DexIndexOverflowException: method ID not in [0, 0xffff]: 65536
     }
     buildTypes {
         release {
