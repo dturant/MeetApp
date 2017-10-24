@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,25 +29,28 @@ public class Register extends AppCompatActivity {
         EditText email = (EditText) findViewById(R.id.editText2);
         EditText password = (EditText) findViewById(R.id.editText3);
         EditText password2 = (EditText) findViewById(R.id.editText4);
+        CheckBox checkBox = (CheckBox) findViewById(R.id.checkBox);
 
         String strNome = nome.getText().toString();
         String strEmail = email.getText().toString();
         String strPw = password.getText().toString();
         String strPw2 = password2.getText().toString();
 
-
         if(TextUtils.isEmpty(strNome)) {
-            nome.setError("Your Name");
+            nome.setError("Your Name can't be empty");
             return;
         } else if (TextUtils.isEmpty(strEmail)) {
-            email.setError("Your Email");
+            email.setError("Your Email can't be empty");
             return;
         } else if (TextUtils.isEmpty(strPw)) {
-            password.setError("Your Password");
+            password.setError("Your Password can't be empty");
             return;
         } else if (TextUtils.isEmpty(strPw2)) {
             password2.setError("Your Passwords need to match");
             return;
+        } else if (!checkBox.isChecked()){
+            Toast.makeText(getApplicationContext(), "You must accept Terms and Conditions",
+                    Toast.LENGTH_SHORT).show();
         } else {
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
