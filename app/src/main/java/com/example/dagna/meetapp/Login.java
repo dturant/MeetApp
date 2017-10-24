@@ -13,11 +13,6 @@ public class Login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        /*if (true) {
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-        }*/
     }
 
     public void login(View view) {
@@ -29,6 +24,8 @@ public class Login extends AppCompatActivity {
                 && password.getText().toString().equals("admin")) {
             Toast.makeText(getApplicationContext(),
                     "Redirecting...",Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
         } else {
             if (username.getText().toString().trim().length() <= 0 && password.getText().toString().trim().length() <= 0) {
 
@@ -52,5 +49,7 @@ public class Login extends AppCompatActivity {
     public void register(View view) {
         Toast.makeText(getApplicationContext(),
                 "Redirecting...",Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(this, Register.class);
+        startActivity(intent);
     }
 }
