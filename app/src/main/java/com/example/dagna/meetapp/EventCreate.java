@@ -20,8 +20,7 @@ public class EventCreate extends AppCompatActivity {
 
         Intent intent = getIntent();
         String message = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
-        TextView tv = (TextView) findViewById(R.id.eventCreate);
-        tv.setText(message);
+
     }
 
 }
