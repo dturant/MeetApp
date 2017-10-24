@@ -7,15 +7,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.GridLayout;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
 public class Events extends AppCompatActivity {
-
     //LIST OF ARRAY STRINGS WHICH WILL SERVE AS LIST ITEMS
-    ArrayList<String> gridItems=new ArrayList<String>();
+    ArrayList<String> listItems=new ArrayList<String>();
 
     //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
     ArrayAdapter<String> adapter;
@@ -29,18 +31,20 @@ public class Events extends AppCompatActivity {
         
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        GridView grid = (GridView) findViewById(R.id.gridEvents);
+
+
+        ListView list = (ListView) findViewById(R.id.events_list);
 
 
         for (int i=0; i<20; i++){
-            gridItems.add("Event " + String.valueOf(i));
+            listItems.add("events " + String.valueOf(i));
         }
 
         adapter=new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1,
-                gridItems);
+                listItems);
 
-        grid.setAdapter(adapter);
+        list.setAdapter(adapter);
 
 
     }
