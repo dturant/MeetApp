@@ -64,6 +64,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void onBackPressed(){
+        finish();
+    }
+
+    @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -115,17 +120,6 @@ public class MainActivity extends AppCompatActivity
     public void onHeaderPress(View view){
         Intent intent = new Intent(this, Profile.class);
         startActivity(intent);
-    }
-
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-
     }
 
     @Override
