@@ -68,8 +68,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed(){
-        System.gc();
-        System.exit(0);
+        finish();
     }
 
     @Override
@@ -168,6 +167,8 @@ public class MainActivity extends AppCompatActivity
 
 
         } else if (id == R.id.nav_groups) {
+            Intent intent = new Intent(this, Groups.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_settings) {
 

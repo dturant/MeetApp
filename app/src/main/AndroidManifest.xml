@@ -60,7 +60,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.dagna.meetapp.MainActivity" />
         </activity>
-        <activity android:name=".Login">
+        <activity
+            android:name=".Login"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -76,6 +78,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.dagna.meetapp.Login" />
         </activity>
+
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -91,6 +94,15 @@
         <activity
             android:name=".EventCreate"
             android:label="@string/title_activity_event_create"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.dagna.meetapp.MainActivity" />
+        </activity>
+        <activity
+            android:name=".Groups"
+            android:label="@string/title_activity_groups"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data

@@ -7,14 +7,13 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.dagna.meetapp.EventCreate"
     tools:showIn="@layout/activity_eventcreate"
-
     android:orientation="vertical">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="10"
-        android:background="#d3d3d3">
+        android:background="@color/colorAccent">
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -26,6 +25,7 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:background="@drawable/transparent_button"
+            android:textColor="@color/colorText"
             >
         </Button>
     </FrameLayout>
@@ -43,7 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/event_name"
-            android:text="@string/event_name"/>
+            android:hint="@string/event_name" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -54,14 +54,14 @@
                 android:id="@+id/event_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/event_date"
+                android:hint="@string/event_date"
                 android:layout_weight="1"/>
 
             <EditText
                 android:id="@+id/event_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/event_time"
+                android:hint="@string/event_time"
                 android:layout_weight="1"/>
         </LinearLayout>
 
@@ -70,7 +70,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/event_category"
-            android:text="@string/event_category"/>
+            android:hint="@string/event_category"/>
 
         <EditText
             android:layout_width="match_parent"
@@ -82,7 +82,7 @@
             android:gravity="top|left"
             android:maxLines="20"
             android:scrollbars="vertical"
-            android:text="@string/event_description"/>
+            android:hint="@string/event_description"/>
 
         <Space
             android:layout_width="match_parent"
@@ -93,6 +93,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/event_add"
-            android:layout_gravity="bottom"/>
+            android:layout_gravity="bottom"
+            android:background="@color/colorPrimary"
+            android:textColor="@color/colorText"/>
     </LinearLayout>
 </LinearLayout>
