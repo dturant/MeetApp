@@ -13,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.util.ArrayList;
 
 public class Events extends AppCompatActivity {
@@ -36,8 +38,8 @@ public class Events extends AppCompatActivity {
         ListView list = (ListView) findViewById(R.id.events_list);
 
 
-        for (int i=0; i<20; i++){
-            listItems.add("events " + String.valueOf(i));
+        for (MarkerOptions marker : MainActivity.markerList){
+            listItems.add(marker.getTitle());
         }
 
         adapter=new ArrayAdapter<String>(this,

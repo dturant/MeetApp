@@ -35,5 +35,6 @@
     <string name="event_description">Description</string>
     <string name="event_photo">Upload photo</string>
     <string name="event_add">Add event</string>
+    <string name="title_activity_event">Event</string>
 
 </resources>

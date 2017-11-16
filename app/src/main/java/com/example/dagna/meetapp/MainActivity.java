@@ -1,9 +1,12 @@
 package com.example.dagna.meetapp;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -20,12 +23,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
@@ -35,6 +43,9 @@ public class MainActivity extends AppCompatActivity
     private int LOCATION_PERMISSION_REQUEST_CODE = 1;
     public final static String EXTRA_MESSAGE = "com.example.dagna.meetapp.MESSAGE";
 
+    public static ArrayList<MarkerOptions> markerList = new ArrayList<MarkerOptions>();
+    private int REQUEST_CODE = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,17 +53,14 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
-
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -101,28 +109,81 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                     LOCATION_PERMISSION_REQUEST_CODE);
-            return;
+        }else{
+            mMap.setMyLocationEnabled(true);
+
+
+            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if(!location.equals(null)){
+                CameraUpdate center=
+                        CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),location.getLongitude()));
+                CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
+
+                mMap.moveCamera(center);
+                mMap.animateCamera(zoom);
+
+            }
+
         }
-        mMap.setMyLocationEnabled(true);
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
 
                 Intent intent = new Intent(MainActivity.this, EventCreate.class);
-                String message = latLng.toString();
+                String message = String.valueOf(latLng.latitude) + "," + String.valueOf(latLng.longitude);
+                intent.putExtra(EXTRA_MESSAGE, message);
+                startActivityForResult(intent, REQUEST_CODE);
+            }
+        });
+
+        for (MarkerOptions marker : markerList){
+            mMap.addMarker(marker);
+        }
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+
+                Intent intent = new Intent(MainActivity.this, Event.class);
+                String message = marker.getTitle();
                 intent.putExtra(EXTRA_MESSAGE, message);
                 startActivity(intent);
+
+                return true;
 
             }
         });
 
+
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+
+
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+
+            if (data.hasExtra("marker")) {
+                MarkerOptions marker = (MarkerOptions) data.getExtras().get("marker");
+
+                markerList.add(marker);
+
+                mMap.addMarker(marker);
+
+            }
+        }
+    }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
@@ -130,10 +191,9 @@ public class MainActivity extends AppCompatActivity
             case 1: {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        return;
+                    if (!(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+                        mMap.setMyLocationEnabled(true);
                     }
-                    mMap.setMyLocationEnabled(true);
 
                 }
                 return;
@@ -141,8 +201,6 @@ public class MainActivity extends AppCompatActivity
 
         }
     }
-
-
 
 
 
@@ -215,4 +273,6 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 }
