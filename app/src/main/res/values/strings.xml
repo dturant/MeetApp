@@ -37,4 +37,13 @@
     <string name="event_add">Add event</string>
     <string name="title_activity_event">Event</string>
 
+    <string-array name="categories">
+        <item>Sport</item>
+        <item>Party</item>
+        <item>Sightseeing</item>
+        <item>Cultural</item>
+        <item>Other</item>
+    </string-array>
+
+
 </resources>
