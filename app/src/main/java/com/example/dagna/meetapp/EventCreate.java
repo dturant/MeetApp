@@ -32,9 +32,6 @@ public class EventCreate extends AppCompatActivity {
     public Intent intent;
     public ImageView eventPhoto;
     public EditText date,time;
-    static final int DATE_DIALOG_ID = 0;
-    static final int TIME_DIALOG_ID = 0;
-    private int mYear,mMonth,mDay,mHour,mMinutes;
     Spinner spinner;
 
     @Override
@@ -125,10 +122,6 @@ public class EventCreate extends AppCompatActivity {
 
 
     protected void pickTime(View view){
-        Calendar c=Calendar.getInstance();
-        mYear=c.get(Calendar.YEAR);
-        mMonth=c.get(Calendar.MONTH);
-        mDay=c.get(Calendar.DAY_OF_MONTH);
 
         Calendar mcurrentTime = Calendar.getInstance();
         int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
