@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity
 
 
             Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if(!location.equals(null)){
+            if(location != null){
                 CameraUpdate center=
                         CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),location.getLongitude()));
                 CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
@@ -225,6 +226,17 @@ public class MainActivity extends AppCompatActivity
 
                     if (!(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
                         mMap.setMyLocationEnabled(true);
+                        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                        Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        if(location != null){
+                            CameraUpdate center=
+                                    CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),location.getLongitude()));
+                            CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
+
+                            mMap.moveCamera(center);
+                            mMap.animateCamera(zoom);
+
+                        }
                     }
 
                 }
@@ -233,6 +245,8 @@ public class MainActivity extends AppCompatActivity
 
         }
     }
+
+
 
 
 
