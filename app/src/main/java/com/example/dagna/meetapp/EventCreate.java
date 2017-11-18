@@ -2,37 +2,32 @@ package com.example.dagna.meetapp;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.Calendar;
 
 public class EventCreate extends AppCompatActivity {
 
-    public LatLng location;
+    public LatLng eventLocation;
     public Intent intent;
     public ImageView eventPhoto;
-    public EditText date,time;
-    Spinner spinner;
+    public EditText eventDate, eventTime, eventName,eventDescription;
+    Spinner eventCategorySpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,32 +39,44 @@ public class EventCreate extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         eventPhoto = (ImageView) findViewById(R.id.event_photo);
-        date=(EditText) findViewById(R.id.event_date);
-        time=(EditText) findViewById(R.id.event_time);
+        eventName =(EditText) findViewById(R.id.event_name);
+        eventDate =(EditText) findViewById(R.id.event_date);
+        eventTime =(EditText) findViewById(R.id.event_time);
+        eventDescription =(EditText) findViewById(R.id.event_description);
 
-        spinner = (Spinner) findViewById(R.id.event_category);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.categories, R.layout.spinner_item);
+        eventCategorySpinner = (Spinner) findViewById(R.id.event_category);
+        ArrayAdapter<Category> adapter = new ArrayAdapter<Category>(this, R.layout.spinner_item, Category.values());
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
+        eventCategorySpinner.setAdapter(adapter);
 
         intent = getIntent();
         String[] locationString = intent.getStringExtra(MainActivity.EXTRA_MESSAGE).split(",");
 
 
-        location = new LatLng(Double.parseDouble(locationString[0]), Double.parseDouble(locationString[1]));
+        eventLocation = new LatLng(Double.parseDouble(locationString[0]), Double.parseDouble(locationString[1]));
 
     }
 
     public void createEvent(View view){
 
-        EditText et = (EditText) findViewById(R.id.event_name);
+        String name = eventName.getText().toString();
+        String date = eventDate.getText().toString();
+        String time = eventTime.getText().toString();
+        String description = eventDescription.getText().toString();
+        LatLng location = eventLocation;
+        String owner ="owner";
+        //TODO add a working login of an event's creator
+        Category category = Category.valueOf(eventCategorySpinner.getSelectedItem().toString());
+        EventObject eventObject = new EventObject(name, date,time,description,location,owner,category);
+        MainActivity.eventList.add(eventObject);
 
         MarkerOptions marker = new MarkerOptions()
-                .position(location)
-                .title(et.getText().toString());
+                .position(eventLocation)
+                .title(eventName.getText().toString());
 
         intent.putExtra("marker",marker);
+
+
 
         setResult(Activity.RESULT_OK, intent);
         super.finish();
@@ -110,10 +117,8 @@ public class EventCreate extends AppCompatActivity {
         DatePickerDialog mDatePicker;
         mDatePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
             public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
-                // TODO Auto-generated method stub
-                    /*      Your code   to get date and time    */
                 selectedmonth = selectedmonth + 1;
-                date.setText("" + selectedday + "/" + selectedmonth + "/" + selectedyear);
+                eventDate.setText("" + selectedday + "/" + selectedmonth + "/" + selectedyear);
             }
         }, mYear, mMonth, mDay);
         mDatePicker.setTitle("Select Date");
@@ -130,10 +135,10 @@ public class EventCreate extends AppCompatActivity {
         mTimePicker = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int selectedHour, int selectedMinute) {
-                time.setText( selectedHour + ":" + selectedMinute);
+                eventTime.setText( selectedHour + ":" + selectedMinute);
 
             }
-        }, hour, minute, true);//Yes 24 hour time
+        }, hour, minute, true);//Yes 24 hour eventTime
         mTimePicker.setTitle("Select Time");
         mTimePicker.show();
     }

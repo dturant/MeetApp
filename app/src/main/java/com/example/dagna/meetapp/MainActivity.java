@@ -20,6 +20,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +35,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity
 
     public static ArrayList<MarkerOptions> markerList = new ArrayList<MarkerOptions>();
     private int REQUEST_CODE = 1;
+    public static List eventList; //just a predefined set of events available from all classes
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +79,8 @@ public class MainActivity extends AppCompatActivity
         mapFragment.getMapAsync(this);
 
 
+        eventList = new ArrayList<EventObject>();
+        eventList.addAll(MockupEventCreator.eventList());
     }
 
 
@@ -145,23 +150,50 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        for (MarkerOptions marker : markerList){
+        /*for (MarkerOptions marker : markerList){
             mMap.addMarker(marker);
-        }
+        }*/
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
 
                 Intent intent = new Intent(MainActivity.this, Event.class);
-                String message = marker.getTitle();
-                intent.putExtra(EXTRA_MESSAGE, message);
+                String name = marker.getTitle();
+
+                for(Object event : eventList){
+                    if(event instanceof EventObject){
+
+                        //TODO implement a check which will identify events without doubts
+                      if( ((EventObject) event).getName().equals(name)){
+                          intent.putExtra("date",((EventObject) event).getDate() );
+                          intent.putExtra("time",((EventObject) event).getTime() );
+                          intent.putExtra("category",((EventObject) event).getCategory().toString() );
+                          intent.putExtra("description",((EventObject) event).getDescription() );
+                      }
+                    }
+
+                }
+
+                intent.putExtra("name", name);
                 startActivity(intent);
 
                 return true;
 
             }
         });
+
+
+        for(Object event : eventList){
+            if(event instanceof EventObject){
+                MarkerOptions marker = new MarkerOptions()
+                        .position(((EventObject) event).getLocation())
+                        .title(((EventObject) event).getName());
+                markerList.add(marker);
+                mMap.addMarker(marker);
+            }
+
+        }
 
 
     }
