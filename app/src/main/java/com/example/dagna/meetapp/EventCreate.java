@@ -18,6 +18,8 @@ import android.widget.TimePicker;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Calendar;
 
@@ -28,6 +30,8 @@ public class EventCreate extends AppCompatActivity {
     public ImageView eventPhoto;
     public EditText eventDate, eventTime, eventName,eventDescription;
     Spinner eventCategorySpinner;
+    private DatabaseReference mFirebaseDatabase;
+    private FirebaseDatabase mFirebaseInstance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,21 +67,26 @@ public class EventCreate extends AppCompatActivity {
         String date = eventDate.getText().toString();
         String time = eventTime.getText().toString();
         String description = eventDescription.getText().toString();
-        LatLng location = eventLocation;
-        String owner ="owner";
-        //TODO add a working login of an event's creator
-        Category category = Category.valueOf(eventCategorySpinner.getSelectedItem().toString());
-        EventObject eventObject = new EventObject(name, date,time,description,location,owner,category);
-        MainActivity.eventList.add(eventObject);
 
-        MarkerOptions markerOptions = new MarkerOptions()
+
+
+
+
+
+        mFirebaseInstance = FirebaseDatabase.getInstance();
+
+        mFirebaseDatabase = mFirebaseInstance.getReference("markers");
+
+        String  markerID = mFirebaseDatabase.push().getKey();
+
+        mFirebaseDatabase.child(markerID).child("title").setValue(name);
+        mFirebaseDatabase.child(markerID).child("location").setValue(eventLocation);
+
+        MarkerOptions marker = new MarkerOptions()
                 .position(eventLocation)
-                .title(eventName.getText().toString());
+                .title(markerID);
 
-        intent.putExtra("markerOptions",markerOptions);
-
-
-
+        intent.putExtra("marker",marker);
 
         setResult(Activity.RESULT_OK, intent);
         super.finish();

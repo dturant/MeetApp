@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
@@ -24,6 +25,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdate;
@@ -34,8 +36,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -46,9 +54,11 @@ public class MainActivity extends AppCompatActivity
     private int LOCATION_PERMISSION_REQUEST_CODE = 1;
     public final static String EXTRA_MESSAGE = "com.example.dagna.meetapp.MESSAGE";
 
-    public static ArrayList<MarkerOptions> markerList = new ArrayList<MarkerOptions>();
+    private DatabaseReference mFirebaseDatabase;
+    private FirebaseDatabase mFirebaseInstance;
     private int REQUEST_CODE = 1;
-    public static List eventList; //just a predefined set of events available from all classes
+
+    public String userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +66,9 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
+        userID = sharedPref.getString("userID", null);
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -75,13 +88,38 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
+        mFirebaseInstance = FirebaseDatabase.getInstance();
+        mFirebaseDatabase = mFirebaseInstance.getReference("users").child(userID);
+
+
+        mFirebaseDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                TextView tv = (TextView) findViewById(R.id.user_name);
+                tv.setText(dataSnapshot.child("nome").getValue().toString());
+
+                TextView tvMail = (TextView) findViewById(R.id.user_email);
+                tvMail.setText(dataSnapshot.child("email").getValue().toString());
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
 
-        eventList = new ArrayList<EventObject>();
-        eventList.addAll(MockupEventCreator.eventList());
+
+
     }
 
 
@@ -151,44 +189,47 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        /*for (MarkerOptions marker : markerList){
-            mMap.addMarker(marker);
-        }*/
+        mFirebaseInstance = FirebaseDatabase.getInstance();
+
+        mFirebaseDatabase = mFirebaseInstance.getReference("markers");
+
+        mFirebaseDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+
+                    HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
+
+                    HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
+
+                    MarkerOptions marker = new MarkerOptions().title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"),markerLoc.get("longitude")));
+
+                    mMap.addMarker(marker);
+
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
 
                 Intent intent = new Intent(MainActivity.this, Event.class);
-
-                EventObject eventObject = (EventObject) marker.getTag();
-                intent.putExtra("name", eventObject.getName());
-                intent.putExtra("date",eventObject.getDate() );
-                intent.putExtra("time",eventObject.getTime() );
-                intent.putExtra("category",eventObject.getCategory().toString());
-                intent.putExtra("description",eventObject.getDescription() );
-
-
+                String message = marker.getTitle();
+                intent.putExtra(EXTRA_MESSAGE, message);
                 startActivity(intent);
 
                 return true;
 
             }
         });
-
-
-        for(Object event : eventList){
-            if(event instanceof EventObject){
-                ((EventObject) event).setOnMap(true);
-                MarkerOptions markerOptions = new MarkerOptions()
-                        .position(((EventObject) event).getLocation())
-                        .title(((EventObject) event).getName());
-                Marker marker = mMap.addMarker(markerOptions);
-                marker.setTag(event);
-                markerList.add(markerOptions);
-            }
-
-        }
 
 
     }
@@ -199,34 +240,15 @@ public class MainActivity extends AppCompatActivity
 
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
 
-           /* if (data.hasExtra("markerOptions")) {
-                MarkerOptions markerOptions = (MarkerOptions) data.getExtras().get("markerOptions");
-                Marker marker = mMap.addMarker(markerOptions);
-                marker.setTag(event);
-                markerList.add(markerOptions);
+            if (data.hasExtra("marker")) {
+                MarkerOptions marker = (MarkerOptions) data.getExtras().get("marker");
 
-
-
-
-                mMap.addMarker(markerOptions);
-
-            }*/
-
-            for(Object event : eventList){
-                if(event instanceof EventObject){
-                    if(!((EventObject) event).isOnMap()) {
-                        MarkerOptions markerOptions = new MarkerOptions()
-                                .position(((EventObject) event).getLocation())
-                                .title(((EventObject) event).getName());
-                        Marker marker = mMap.addMarker(markerOptions);
-                        marker.setTag(event);
-                        markerList.add(markerOptions);
-                    }
-                }
+                mMap.addMarker(marker);
 
             }
         }
     }
+
 
 
 
@@ -319,6 +341,11 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
 
         } else if (id == R.id.nav_logout) {
+
+            SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("userID", null);
+            editor.commit();
 
             Intent intent = new Intent(this, Login.class);
             startActivity(intent);

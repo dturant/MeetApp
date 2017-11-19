@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "502816308288",
+    "firebase_url": "https://meetapp-1718.firebaseio.com",
+    "project_id": "meetapp-1718",
+    "storage_bucket": "meetapp-1718.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:502816308288:android:0aaa5f2e0898df86",
+        "android_client_info": {
+          "package_name": "com.example.dagna.meetapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "502816308288-f2dc6v0vc7e0afieu2c4dj42jktp7tqh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC28zg3EdnfqMOl4wZCQljOZJQW0_1XbJg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

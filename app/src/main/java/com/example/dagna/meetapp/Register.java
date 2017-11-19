@@ -1,6 +1,8 @@
 package com.example.dagna.meetapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -13,7 +15,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 public class Register extends AppCompatActivity {
+
+    private DatabaseReference mFirebaseDatabase;
+    private FirebaseDatabase mFirebaseInstance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +57,23 @@ public class Register extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "You must accept Terms and Conditions",
                     Toast.LENGTH_SHORT).show();
         } else {
+
+
+            mFirebaseInstance = FirebaseDatabase.getInstance();
+
+            mFirebaseDatabase = mFirebaseInstance.getReference("users");
+
+            String userID = mFirebaseDatabase.push().getKey();
+
+            mFirebaseDatabase.child(userID).child("nome").setValue(strNome);
+            mFirebaseDatabase.child(userID).child("email").setValue(strEmail);
+            mFirebaseDatabase.child(userID).child("password").setValue(strPw);
+
+            SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString("userID", userID);
+            editor.commit();
+
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }
