@@ -70,11 +70,12 @@ public class EventCreate extends AppCompatActivity {
         EventObject eventObject = new EventObject(name, date,time,description,location,owner,category);
         MainActivity.eventList.add(eventObject);
 
-        MarkerOptions marker = new MarkerOptions()
+        MarkerOptions markerOptions = new MarkerOptions()
                 .position(eventLocation)
                 .title(eventName.getText().toString());
 
-        intent.putExtra("marker",marker);
+        intent.putExtra("markerOptions",markerOptions);
+
 
 
 

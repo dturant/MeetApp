@@ -160,23 +160,15 @@ public class MainActivity extends AppCompatActivity
             public boolean onMarkerClick(Marker marker) {
 
                 Intent intent = new Intent(MainActivity.this, Event.class);
-                String name = marker.getTitle();
 
-                for(Object event : eventList){
-                    if(event instanceof EventObject){
+                EventObject eventObject = (EventObject) marker.getTag();
+                intent.putExtra("name", eventObject.getName());
+                intent.putExtra("date",eventObject.getDate() );
+                intent.putExtra("time",eventObject.getTime() );
+                intent.putExtra("category",eventObject.getCategory().toString());
+                intent.putExtra("description",eventObject.getDescription() );
 
-                        //TODO implement a check which will identify events without doubts
-                      if( ((EventObject) event).getName().equals(name)){
-                          intent.putExtra("date",((EventObject) event).getDate() );
-                          intent.putExtra("time",((EventObject) event).getTime() );
-                          intent.putExtra("category",((EventObject) event).getCategory().toString() );
-                          intent.putExtra("description",((EventObject) event).getDescription() );
-                      }
-                    }
 
-                }
-
-                intent.putExtra("name", name);
                 startActivity(intent);
 
                 return true;
@@ -187,11 +179,13 @@ public class MainActivity extends AppCompatActivity
 
         for(Object event : eventList){
             if(event instanceof EventObject){
-                MarkerOptions marker = new MarkerOptions()
+                ((EventObject) event).setOnMap(true);
+                MarkerOptions markerOptions = new MarkerOptions()
                         .position(((EventObject) event).getLocation())
                         .title(((EventObject) event).getName());
-                markerList.add(marker);
-                mMap.addMarker(marker);
+                Marker marker = mMap.addMarker(markerOptions);
+                marker.setTag(event);
+                markerList.add(markerOptions);
             }
 
         }
@@ -205,12 +199,30 @@ public class MainActivity extends AppCompatActivity
 
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
 
-            if (data.hasExtra("marker")) {
-                MarkerOptions marker = (MarkerOptions) data.getExtras().get("marker");
+           /* if (data.hasExtra("markerOptions")) {
+                MarkerOptions markerOptions = (MarkerOptions) data.getExtras().get("markerOptions");
+                Marker marker = mMap.addMarker(markerOptions);
+                marker.setTag(event);
+                markerList.add(markerOptions);
 
-                markerList.add(marker);
 
-                mMap.addMarker(marker);
+
+
+                mMap.addMarker(markerOptions);
+
+            }*/
+
+            for(Object event : eventList){
+                if(event instanceof EventObject){
+                    if(!((EventObject) event).isOnMap()) {
+                        MarkerOptions markerOptions = new MarkerOptions()
+                                .position(((EventObject) event).getLocation())
+                                .title(((EventObject) event).getName());
+                        Marker marker = mMap.addMarker(markerOptions);
+                        marker.setTag(event);
+                        markerList.add(markerOptions);
+                    }
+                }
 
             }
         }
