@@ -79,8 +79,8 @@ public class EventCreate extends AppCompatActivity {
         String description = eventDescription.getText().toString();
         //String owner = getSharedPreferences("userID", MODE_PRIVATE).toString();
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String owner = prefs.getString("userID", "not found");
+        SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
+        String owner = sharedPref.getString("userID", null);
 
         String category = Category.valueOf(eventCategorySpinner.getSelectedItem().toString()).toString();
 
