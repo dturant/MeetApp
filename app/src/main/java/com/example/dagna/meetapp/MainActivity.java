@@ -202,9 +202,8 @@ public class MainActivity extends AppCompatActivity
 
                     HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
 
-                    MarkerOptions marker = new MarkerOptions().title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"),markerLoc.get("longitude")));
-
-                    mMap.addMarker(marker);
+                    MarkerOptions markerOptions = new MarkerOptions().title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"),markerLoc.get("longitude")));
+                    mMap.addMarker(markerOptions);
 
 
                 }

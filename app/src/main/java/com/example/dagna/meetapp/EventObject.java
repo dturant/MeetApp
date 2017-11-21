@@ -14,15 +14,6 @@ public class EventObject {
     private LatLng location;
     private String owner;
     private Category category;
-    private boolean onMap=false;
-
-    public boolean isOnMap() {
-        return onMap;
-    }
-
-    public void setOnMap(boolean onMap) {
-        this.onMap = onMap;
-    }
 
     public String getName() {
         return name;

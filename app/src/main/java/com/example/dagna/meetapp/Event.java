@@ -62,14 +62,14 @@ TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescrip
 
                 eventName = (TextView) findViewById(R.id.event_name);
                 eventName.setText(dataSnapshot.child("title").getValue().toString());
-//                eventDate = (TextView) findViewById(R.id.event_date);
-//                eventDate.setText(date);
-//                eventTime = (TextView) findViewById(R.id.event_time);
-//                eventTime.setText(time);
-//                eventDescription = (TextView) findViewById(R.id.event_description);
-//                eventDescription.setText(description);
-//                eventCategory = (TextView) findViewById(R.id.event_category);
-//                eventCategory.setText(category);
+                eventDate = (TextView) findViewById(R.id.event_date);
+                eventDate.setText(dataSnapshot.child("date").getValue().toString());
+                eventTime = (TextView) findViewById(R.id.event_time);
+                eventTime.setText(dataSnapshot.child("time").getValue().toString());
+                eventDescription = (TextView) findViewById(R.id.event_description);
+                eventDescription.setText(dataSnapshot.child("description").getValue().toString());
+                eventCategory = (TextView) findViewById(R.id.event_category);
+                eventCategory.setText(dataSnapshot.child("category").getValue().toString());
 
                 //Log.d("data", name + " " + date + " " + time + " " + description + " "+category);
                 // TextView tv = (TextView) findViewById(R.id.marker_title);
