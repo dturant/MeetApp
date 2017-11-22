@@ -1,14 +1,49 @@
 package com.example.dagna.meetapp;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TabHost;
+import android.widget.TextView;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 public class Profile extends AppCompatActivity {
+
+    public String userID;
+    private DatabaseReference mFirebaseDatabaseUsers;
+    private DatabaseReference mFirebaseDatabaseMarkers;
+    private FirebaseDatabase mFirebaseInstance;
+    //LIST OF ARRAY STRINGS WHICH WILL SERVE AS LIST ITEMS
+    ArrayList<String> listItems=new ArrayList<String>();
+    ArrayList<String> listItemsKeys=new ArrayList<String>();
+
+    //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
+    ArrayAdapter<String> adapter;
+
+    public final static String EXTRA_MESSAGE = "com.example.dagna.meetapp.MESSAGE";
+
+    public TextView name, email;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +71,99 @@ public class Profile extends AppCompatActivity {
         spec3.setContent(R.id.tab3);
         spec3.setIndicator("Events");
         host.addTab(spec3);
+
+
+        Intent intent = getIntent();
+        userID = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+
+        mFirebaseInstance = FirebaseDatabase.getInstance();
+
+
+        mFirebaseDatabaseUsers = mFirebaseInstance.getReference("users").child(userID);
+
+
+        name = (TextView) findViewById(R.id.name);
+        email = (TextView) findViewById(R.id.email);
+
+        mFirebaseDatabaseUsers.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                name.setText(dataSnapshot.child("nome").getValue().toString());
+                email.setText(dataSnapshot.child("email").getValue().toString());
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        mFirebaseDatabaseMarkers = mFirebaseInstance.getReference("markers");
+        mFirebaseDatabaseMarkers.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ListView list = (ListView) findViewById(R.id.events_list);
+
+
+
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+
+                    HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
+
+
+                    try {
+                        Date markerDay = new SimpleDateFormat("dd/MM/yyyy").parse((String) markerHashMap.get("date"));
+
+                        if( new Date().before(markerDay) && userID.equals((String) markerHashMap.get("owner"))){
+
+                            String markerTitle = (String) markerHashMap.get("title");
+                            listItems.add(markerTitle);
+                            listItemsKeys.add(snapshot.getKey());
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+
+
+                    }
+
+                }
+
+                adapter=new ArrayAdapter<String>(Profile.this,
+                        android.R.layout.simple_list_item_1,
+                        listItems);
+
+
+
+                list.setAdapter(adapter);
+
+
+
+                list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, final View view,
+                                            int position, long id) {
+
+                        Intent intent = new Intent(Profile.this, Event.class);
+                        String message = listItemsKeys.get(position);
+                        intent.putExtra(EXTRA_MESSAGE, message);
+                        startActivity(intent);
+
+                    }
+
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
     }
 
 }

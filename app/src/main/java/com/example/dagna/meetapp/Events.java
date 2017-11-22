@@ -24,7 +24,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 public class Events extends AppCompatActivity {
@@ -69,9 +72,23 @@ public class Events extends AppCompatActivity {
 
                     HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
 
-                    String markerTitle = (String) markerHashMap.get("title");
-                    listItems.add(markerTitle);
-                    listItemsKeys.add(snapshot.getKey());
+
+                    try {
+                        Date markerDay = new SimpleDateFormat("dd/MM/yyyy").parse((String) markerHashMap.get("date"));
+
+                        if( new Date().before(markerDay)){
+
+                            String markerTitle = (String) markerHashMap.get("title");
+                            listItems.add(markerTitle);
+                            listItemsKeys.add(snapshot.getKey());
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+
+
+                    }
+
+
 
 
                 }

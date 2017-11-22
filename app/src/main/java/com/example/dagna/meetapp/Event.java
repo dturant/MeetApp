@@ -1,6 +1,7 @@
 package com.example.dagna.meetapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -8,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TabHost;
 import android.widget.TextView;
 
@@ -19,9 +21,11 @@ import com.google.firebase.database.ValueEventListener;
 
 public class Event extends AppCompatActivity {
 TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescription;
+    Button cancelButton;
 
     private DatabaseReference mFirebaseDatabase;
     private FirebaseDatabase mFirebaseInstance;
+    public String markerID;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,7 +36,7 @@ TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescrip
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
-        String markerID = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+         markerID = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
 
         TabHost host = (TabHost)findViewById(R.id.groups_tab);
@@ -71,6 +75,18 @@ TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescrip
                 eventCategory = (TextView) findViewById(R.id.event_category);
                 eventCategory.setText(dataSnapshot.child("category").getValue().toString());
 
+
+                SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
+                String userID = sharedPref.getString("userID", null);
+
+                Log.i("userId", userID);
+                Log.i("owner",dataSnapshot.child("owner").getValue().toString() );
+
+                if(dataSnapshot.child("owner").getValue().toString().equals(userID)){
+                    cancelButton = (Button) findViewById(R.id.buttonCancel);
+                    cancelButton.setVisibility(View.VISIBLE);
+                }
+
                 //Log.d("data", name + " " + date + " " + time + " " + description + " "+category);
                 // TextView tv = (TextView) findViewById(R.id.marker_title);
                 // tv.setText(title);
@@ -85,6 +101,19 @@ TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescrip
 
 
 
+
+
+
+    }
+
+    public void cancelEvent(View view){
+
+        mFirebaseInstance = FirebaseDatabase.getInstance();
+        mFirebaseDatabase = mFirebaseInstance.getReference("markers").child(markerID);
+        mFirebaseDatabase.removeValue();
+
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
 
     }
 

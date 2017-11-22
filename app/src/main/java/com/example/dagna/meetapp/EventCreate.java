@@ -42,6 +42,7 @@ public class EventCreate extends AppCompatActivity {
     Spinner eventCategorySpinner;
     private DatabaseReference mFirebaseDatabase;
     private FirebaseDatabase mFirebaseInstance;
+    private Uri selectedImage = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,14 +126,16 @@ public class EventCreate extends AppCompatActivity {
         switch(requestCode) {
             case 0:
                 if(resultCode == RESULT_OK){
-                    Uri selectedImage = imageReturnedIntent.getData();
+                    selectedImage = imageReturnedIntent.getData();
                     eventPhoto.setImageURI(selectedImage);
+
+
                 }
 
                 break;
             case 1:
                 if(resultCode == RESULT_OK){
-                    Uri selectedImage = imageReturnedIntent.getData();
+                    selectedImage = imageReturnedIntent.getData();
                     eventPhoto.setImageURI(selectedImage);
                 }
                 break;

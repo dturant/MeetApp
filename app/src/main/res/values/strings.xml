@@ -36,6 +36,7 @@
     <string name="event_photo">Upload photo</string>
     <string name="event_add">Add event</string>
     <string name="title_activity_event">Event</string>
+    <string name="event_cancel">Cancel Event</string>
 
     <!--<string-areventNamename="categories">
         <item>Sport</item>

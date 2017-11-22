@@ -42,7 +42,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -199,11 +202,23 @@ public class MainActivity extends AppCompatActivity
                 for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
 
                     HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
+                    try {
+                        Date markerDay = new SimpleDateFormat("dd/MM/yyyy").parse(markerHashMap.get("date").toString());
 
-                    HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
+                        if( new Date().before(markerDay)){
+                            HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
 
-                    MarkerOptions markerOptions = new MarkerOptions().title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"),markerLoc.get("longitude")));
-                    mMap.addMarker(markerOptions);
+                            MarkerOptions markerOptions = new MarkerOptions().title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"),markerLoc.get("longitude")));
+                            mMap.addMarker(markerOptions);
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+
+
+                    }
+
+
+
 
 
                 }
@@ -285,8 +300,14 @@ public class MainActivity extends AppCompatActivity
 
 
     public void onHeaderPress(View view){
+
+        SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
+        String userID = sharedPref.getString("userID", null);
+
         Intent intent = new Intent(this, Profile.class);
+        intent.putExtra(EXTRA_MESSAGE, userID);
         startActivity(intent);
+
     }
 
     @Override
