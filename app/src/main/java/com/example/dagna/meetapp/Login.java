@@ -39,7 +39,7 @@ public class Login extends AppCompatActivity {
 
         if(userID!=null){
             Toast.makeText(getApplicationContext(),
-                    "Redirecting...", Toast.LENGTH_SHORT).show();
+                    "Loading...", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }
@@ -79,7 +79,7 @@ public class Login extends AppCompatActivity {
 
 
                         Toast.makeText(getApplicationContext(),
-                                "Redirecting...", Toast.LENGTH_SHORT).show();
+                                "Loading...", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(Login.this, MainActivity.class);
                         startActivity(intent);
                         break;

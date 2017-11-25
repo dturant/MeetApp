@@ -42,12 +42,15 @@ import java.util.HashMap;
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
 import static android.R.id.content;
+import static android.R.id.message;
 
 public class Profile extends AppCompatActivity implements ZXingScannerView.ResultHandler{
 
     public String userID;
+    public String userIDLogged;
     private DatabaseReference mFirebaseDatabaseUsers;
     private DatabaseReference mFirebaseDatabaseMarkers;
+    private DatabaseReference mFirebaseDatabaseFriends;
     private FirebaseDatabase mFirebaseInstance;
     //LIST OF ARRAY STRINGS WHICH WILL SERVE AS LIST ITEMS
     ArrayList<String> listItems=new ArrayList<String>();
@@ -55,6 +58,14 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
     //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
     ArrayAdapter<String> adapter;
+
+
+    //LIST OF ARRAY STRINGS WHICH WILL SERVE AS LIST ITEMS
+    ArrayList<String> listFriends=new ArrayList<String>();
+    ArrayList<String> listFriendsIDs=new ArrayList<String>();
+
+    //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
+    ArrayAdapter<String> adapterFriends;
 
     public final static String EXTRA_MESSAGE = "com.example.dagna.meetapp.MESSAGE";
 
@@ -71,6 +82,8 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        Intent intent = getIntent();
+        userID = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -87,6 +100,15 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
                 startCamera();// Start camera<br />
             }
         });
+
+        SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
+        userIDLogged = sharedPref.getString("userID", null);
+
+        if(!userID.equals(userIDLogged)){
+
+            fab.setVisibility(View.INVISIBLE);
+
+        }
 
         TabHost host = (TabHost)findViewById(R.id.profile_tab);
         host.setup();
@@ -107,8 +129,7 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
         host.addTab(spec3);
 
 
-        Intent intent = getIntent();
-        userID = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+
 
         mFirebaseInstance = FirebaseDatabase.getInstance();
 
@@ -127,10 +148,11 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
                 name.setText(dataSnapshot.child("nome").getValue().toString());
                 email.setText(dataSnapshot.child("email").getValue().toString());
 
-                Bitmap myBitmap = QRCode.from(userID).bitmap();
-                ImageView myImage = (ImageView) findViewById(R.id.QRCode);
-                myImage.setImageBitmap(myBitmap);
-
+                if(userID.equals(userIDLogged)) {
+                    Bitmap myBitmap = QRCode.from(userID).bitmap();
+                    ImageView myImage = (ImageView) findViewById(R.id.QRCode);
+                    myImage.setImageBitmap(myBitmap);
+                }
 
 
             }
@@ -207,6 +229,69 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
         });
 
 
+        mFirebaseDatabaseFriends = mFirebaseInstance.getReference("users").child(userID).child("friends");
+        mFirebaseDatabaseFriends.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ListView list = (ListView) findViewById(R.id.friends_list);
+
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+
+
+
+                    mFirebaseInstance.getReference("users").child((String) snapshot.getValue()).child("nome").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            listFriends.add((String) dataSnapshot.getValue());
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+                    listFriendsIDs.add((String) snapshot.getValue());
+
+
+                }
+
+                adapterFriends=new ArrayAdapter<String>(Profile.this,
+                        android.R.layout.simple_list_item_1,
+                        listFriends);
+
+
+
+                list.setAdapter(adapterFriends);
+
+
+
+                list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, final View view,
+                                            int position, long id) {
+
+                        finish();
+                        Intent intent = new Intent(Profile.this, Profile.class);
+                        String message = listFriendsIDs.get(position);
+                        intent.putExtra(EXTRA_MESSAGE, message);
+                        startActivity(intent);
+
+
+                    }
+
+                });
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
     }
 
 
@@ -250,16 +335,18 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
     @Override
     public void handleResult(Result result) {
-        Log.i("QRCODE",result.getText());
         mScannerView.stopCamera();
-        setContentView(R.layout.activity_profile);
+
+        mFirebaseInstance.getReference("users").child(userID).child("friends").child(String.valueOf(listFriends.size())).setValue(result.getText());
+
+        Toast.makeText(getApplicationContext(),
+                "Friend added!", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(Profile.this, Profile.class);
+        String message = userID;
+        intent.putExtra(EXTRA_MESSAGE, message);
+        startActivity(intent);
+
     }
 
 
-
-    @Override
-    public void onPause() {
-            super.onPause();
-            mScannerView.stopCamera();   // Stop camera on pause<br />
-    }
 }

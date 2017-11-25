@@ -9,23 +9,44 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class Event extends AppCompatActivity {
 TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescription;
-    Button cancelButton;
+    Button cancelButton, goButton;
 
     private DatabaseReference mFirebaseDatabase;
     private FirebaseDatabase mFirebaseInstance;
     public String markerID;
+    private String userID;
+    public int pos = 0;
+
+    //LIST OF ARRAY STRINGS WHICH WILL SERVE AS LIST ITEMS
+    ArrayList<String> listParticipants=new ArrayList<String>();
+    ArrayList<String> listParticipantsIDs;
+
+    //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
+    ArrayAdapter<String> adapter;
+
+
+    public final static String EXTRA_MESSAGE = "com.example.dagna.meetapp.MESSAGE";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +59,8 @@ TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescrip
         Intent intent = getIntent();
          markerID = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
+        SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
+        userID = sharedPref.getString("userID", null);
 
         TabHost host = (TabHost)findViewById(R.id.groups_tab);
         host.setup();
@@ -75,17 +98,63 @@ TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescrip
                 eventCategory = (TextView) findViewById(R.id.event_category);
                 eventCategory.setText(dataSnapshot.child("category").getValue().toString());
 
+                listParticipantsIDs = (ArrayList<String>)  dataSnapshot.child("users").getValue();
 
                 SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
-                String userID = sharedPref.getString("userID", null);
+                final String userID = sharedPref.getString("userID", null);
 
-                Log.i("userId", userID);
-                Log.i("owner",dataSnapshot.child("owner").getValue().toString() );
 
                 if(dataSnapshot.child("owner").getValue().toString().equals(userID)){
                     cancelButton = (Button) findViewById(R.id.buttonCancel);
                     cancelButton.setVisibility(View.VISIBLE);
+                }else if(!listParticipantsIDs.contains(userID)){
+                    goButton = (Button) findViewById(R.id.buttonGo);
+                    goButton.setVisibility(View.VISIBLE);
                 }
+
+                for(String user: listParticipantsIDs){
+
+                    mFirebaseInstance = FirebaseDatabase.getInstance();
+                    mFirebaseInstance.getReference("users").child(user).child("nome").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            listParticipants.add((String) dataSnapshot.getValue());
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+
+
+
+                    });
+
+
+                }
+
+
+                adapter=new ArrayAdapter<String>(Event.this,
+                        android.R.layout.simple_list_item_1,
+                        listParticipants);
+
+                ListView list = (ListView) findViewById(R.id.participants_list);
+                list.setAdapter(adapter);
+
+                list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, final View view,
+                                            int position, long id) {
+
+                        Intent intent = new Intent(Event.this, Profile.class);
+                        String message = listParticipantsIDs.get(position);
+                        intent.putExtra(EXTRA_MESSAGE, message);
+                        startActivity(intent);
+
+                    }
+
+                });
 
                 //Log.d("data", name + " " + date + " " + time + " " + description + " "+category);
                 // TextView tv = (TextView) findViewById(R.id.marker_title);
@@ -104,6 +173,9 @@ TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescrip
 
 
 
+
+
+
     }
 
     public void cancelEvent(View view){
@@ -114,6 +186,42 @@ TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescrip
 
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
+
+    }
+
+    public void goEvent(View view){
+
+
+
+        FirebaseDatabase.getInstance().getReference("markers").child(markerID).child("users").limitToLast(1).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+
+                    pos = Integer.valueOf(snapshot.getKey())+1;
+
+
+                }
+
+                mFirebaseInstance.getReference("markers").child(markerID).child("users").child(String.valueOf(pos)).setValue(userID);
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+        Toast.makeText(getApplicationContext(),
+                "You confirmed your presence", Toast.LENGTH_SHORT).show();
+
+        goButton.setVisibility(View.INVISIBLE);
 
     }
 

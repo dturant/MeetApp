@@ -151,6 +151,15 @@
                         android:visibility="invisible"
                         android:onClick="cancelEvent"/>
 
+                    <Button
+                        android:id="@+id/buttonGo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/event_go"
+                        android:background="@android:color/holo_green_light"
+                        android:visibility="invisible"
+                        android:onClick="goEvent"/>
+
 
                 </LinearLayout>
 
@@ -160,12 +169,10 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/textView4"
+                    <ListView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="friends' groups "
-                        android:textColor="@android:color/black" />
+                        android:id="@+id/participants_list"/>
                 </LinearLayout>
 
             </FrameLayout>
