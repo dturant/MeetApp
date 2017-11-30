@@ -14,6 +14,7 @@ public class EventObject {
     private LatLng location;
     private String owner;
     private Category category;
+    private Integer imageId;
 
     public String getName() {
         return name;
@@ -71,7 +72,15 @@ public class EventObject {
         this.category = category;
     }
 
-    public EventObject(String name, String date, String time, String description, LatLng location, String owner, Category category) {
+    public Integer getImageId() {
+        return imageId;
+    }
+
+    public void setImageId(Integer imageId) {
+        this.imageId = imageId;
+    }
+
+    public EventObject(String name, String date, String time, String description, LatLng location, String owner, Category category, Integer imageId) {
         this.name = name;
         this.date = date;
         this.time = time;
@@ -79,5 +88,6 @@ public class EventObject {
         this.location = location;
         this.owner = owner;
         this.category = category;
+        this.imageId = imageId;
     }
 }

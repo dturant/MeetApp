@@ -99,7 +99,7 @@ TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescrip
                 eventCategory.setText(dataSnapshot.child("category").getValue().toString());
 
                 listParticipantsIDs = (ArrayList<String>)  dataSnapshot.child("users").getValue();
-
+                Log.d("numberOfParticipants", Integer.toString(listParticipantsIDs.size()));
                 SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
                 final String userID = sharedPref.getString("userID", null);
 
