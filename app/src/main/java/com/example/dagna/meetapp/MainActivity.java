@@ -15,6 +15,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -27,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.example.dagna.meetapp.helpers.FilterDialog;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -40,6 +42,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
@@ -50,7 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, FilterDialog.FilterDialogListener {
 
 
     private GoogleMap mMap;
@@ -62,6 +65,8 @@ public class MainActivity extends AppCompatActivity
     private int REQUEST_CODE = 1;
 
     public String userID;
+
+    List seletedItems=new ArrayList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +87,15 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FilterDialog filterDialog = new FilterDialog();
+                filterDialog.show(getSupportFragmentManager(), "FilterDialogFragment");
+            }
+        });
 
 
         mFirebaseInstance = FirebaseDatabase.getInstance();
@@ -117,6 +131,76 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        seletedItems = FilterDialog.getSeletedItems();
+        Log.d("selected items", seletedItems.toString());
+        if(seletedItems.size()>0) {
+            mMap.clear();
+
+            if (seletedItems.contains(1)) { //your events
+                Query query = mFirebaseDatabase.orderByChild("owner").equalTo(userID);
+                Log.d("LOL1", "LOL");
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        getResultsFromFirebase(dataSnapshot);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+            if (seletedItems.contains(0)) {
+                mFirebaseDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        getResultsFromFirebase(dataSnapshot);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+            }
+        }
+
+
+
+    }
+
+    private void getResultsFromFirebase(DataSnapshot dataSnapshot){
+        Log.d("LOL", "LOL");
+        if (dataSnapshot.exists()) {
+            Log.d("LOL2", "LOL");
+            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
+                try {
+                    Date markerDay = new SimpleDateFormat("dd/MM/yyyy").parse(markerHashMap.get("date").toString());
+
+                    if( new Date().before(markerDay)){
+                        HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
+
+                        MarkerOptions markerOptions = new MarkerOptions().title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"),markerLoc.get("longitude")));
+                        mMap.addMarker(markerOptions);
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+
+    }
 
     @Override
     public void onBackPressed() {

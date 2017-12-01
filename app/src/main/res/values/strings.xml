@@ -39,13 +39,18 @@
     <string name="event_cancel">Cancel Event</string>
     <string name="event_go">I will go</string>
 
-    <!--<string-areventNamename="categories">
-        <item>Sport</item>
-        <item>Party</item>
-        <item>Sightseeing</item>
-        <item>Cultural</item>
-        <item>Other</item>
-    </string-array> -->
+
+    <!-- filter dialog-->
+    <string name="filter_message">Filter events:</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="filter_option_1">All events</string>
+    <string name="filter_option_2">Your events</string>
+
+    <string-array name="filter_options">
+        <item>@string/filter_option_1</item>
+        <item>@string/filter_option_2</item>
+    </string-array>
 
 
 </resources>
