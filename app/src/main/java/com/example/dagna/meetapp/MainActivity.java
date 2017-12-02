@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.view.GravityCompat;
@@ -29,15 +28,19 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.example.dagna.meetapp.helpers.FilterDialog;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -53,10 +56,11 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, FilterDialog.FilterDialogListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, FilterDialog.FilterDialogListener, LocationListener {
 
 
     private GoogleMap mMap;
+    public Location location = null;
     private int LOCATION_PERMISSION_REQUEST_CODE = 1;
     public final static String EXTRA_MESSAGE = "com.example.dagna.meetapp.MESSAGE";
 
@@ -66,7 +70,8 @@ public class MainActivity extends AppCompatActivity
 
     public String userID;
 
-    List seletedItems=new ArrayList();
+    List seletedItems = new ArrayList();
+    private FusedLocationProviderClient mFusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,14 +126,32 @@ public class MainActivity extends AppCompatActivity
         });
 
 
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        new LastUsersLocation().execute(MainActivity.this);
+
+    }
 
 
+    public final void setFriendMarker(LatLng location){
 
+        MarkerOptions markerOptions = new MarkerOptions().position(location).icon(BitmapDescriptorFactory
+                .defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+        mMap.addMarker(markerOptions);
+
+    }
+
+    public final LatLng getLocation(){
+
+        if (!(location == null)){
+            return new LatLng(location.getLatitude(),location.getLongitude());
+        }
+        return null;
     }
 
     @Override
@@ -244,18 +267,26 @@ public class MainActivity extends AppCompatActivity
             mMap.setMyLocationEnabled(true);
 
 
-            Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if(location != null){
-                CameraUpdate center=
-                        CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),location.getLongitude()));
-                CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
+            mFusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location loc) {
+                            // Got last known location. In some rare situations this can be null.
+                            if (loc != null) {
+                                location = loc;
+                                CameraUpdate center= CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),location.getLongitude()));
+                                CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
 
-                mMap.moveCamera(center);
-                mMap.animateCamera(zoom);
+                                mMap.moveCamera(center);
+                                mMap.animateCamera(zoom);
 
-            }
+
+                            }
+                        }
+                    });
 
         }
+
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
@@ -350,17 +381,23 @@ public class MainActivity extends AppCompatActivity
 
                     if (!(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
                         mMap.setMyLocationEnabled(true);
-                        LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                        Location location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                        if(location != null){
-                            CameraUpdate center=
-                                    CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),location.getLongitude()));
-                            CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
-
-                            mMap.moveCamera(center);
-                            mMap.animateCamera(zoom);
-
-                        }
+//                        mFusedLocationClient.getLastLocation()
+//                                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+//                                    @Override
+//                                    public void onSuccess(Location loc) {
+//                                        // Got last known location. In some rare situations this can be null.
+//                                        if (loc != null) {
+//                                            location = loc;
+//                                            CameraUpdate center= CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),location.getLongitude()));
+//                                            CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
+//
+//                                            mMap.moveCamera(center);
+//                                            mMap.animateCamera(zoom);
+//
+//                                            new LastUsersLocation().execute(MainActivity.this);
+//                                        }
+//                                    }
+//                                });
                     }
 
                 }
@@ -369,10 +406,6 @@ public class MainActivity extends AppCompatActivity
 
         }
     }
-
-
-
-
 
 
     public void onHeaderPress(View view){
@@ -455,5 +488,19 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+
+    @Override
+    public void onLocationChanged(Location loc) {
+        if (!(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+            mMap.setMyLocationEnabled(true);
+            location = loc;
+            CameraUpdate center= CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),location.getLongitude()));
+            CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
+
+            mMap.moveCamera(center);
+            mMap.animateCamera(zoom);
+
+        }
+    }
 
 }

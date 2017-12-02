@@ -3,23 +3,14 @@ package com.example.dagna.meetapp;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.GridLayout;
-import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.example.dagna.meetapp.helpers.EventAdapter;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -80,7 +71,7 @@ public class Events extends AppCompatActivity {
                     try {
                         Date markerDay = new SimpleDateFormat("dd/MM/yyyy").parse((String) markerHashMap.get("date"));
 
-                        if( new Date().before(markerDay)){
+                        if( new Date().before(markerDay) || new Date().equals(markerDay)){
 
                             String markerTitle = (String) markerHashMap.get("title");
                             listItems.add(markerTitle);

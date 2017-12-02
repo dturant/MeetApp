@@ -4,20 +4,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TabHost;
@@ -41,13 +36,11 @@ import java.util.HashMap;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
-import static android.R.id.content;
-import static android.R.id.message;
-
 public class Profile extends AppCompatActivity implements ZXingScannerView.ResultHandler{
 
     public String userID;
     public String userIDLogged;
+    public String userFriendID;
     private DatabaseReference mFirebaseDatabaseUsers;
     private DatabaseReference mFirebaseDatabaseMarkers;
     private DatabaseReference mFirebaseDatabaseFriends;
@@ -335,16 +328,43 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
     @Override
     public void handleResult(Result result) {
-        mScannerView.stopCamera();
 
-        mFirebaseInstance.getReference("users").child(userID).child("friends").child(String.valueOf(listFriends.size())).setValue(result.getText());
+        userFriendID = result.getText();
 
-        Toast.makeText(getApplicationContext(),
-                "Friend added!", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(Profile.this, Profile.class);
-        String message = userID;
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
+        mFirebaseInstance.getReference("users").child(userFriendID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.hasChild("nome")) {
+                    mScannerView.stopCamera();
+
+                    mFirebaseInstance.getReference("users").child(userID).child("friends").child(String.valueOf(listFriends.size())).setValue(userFriendID);
+
+                    mFirebaseInstance.getReference("users").child(userFriendID).child("friends").child(String.valueOf(dataSnapshot.child("friends").getChildrenCount())).setValue(userID);
+
+                    Toast.makeText(getApplicationContext(),
+                            "Friend added!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(Profile.this, Profile.class);
+                    String message = userID;
+                    intent.putExtra(EXTRA_MESSAGE, message);
+                    startActivity(intent);
+
+                }else{
+                    Toast.makeText(getApplicationContext(),
+                            "Wrong QRCode!", Toast.LENGTH_SHORT).show();
+                    startCamera();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+
+
 
     }
 
