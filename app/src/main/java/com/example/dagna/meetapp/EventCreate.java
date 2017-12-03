@@ -8,8 +8,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -22,15 +21,12 @@ import android.widget.TimePicker;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Calendar;
 
 public class EventCreate extends AppCompatActivity {
@@ -42,6 +38,9 @@ public class EventCreate extends AppCompatActivity {
     Spinner eventCategorySpinner;
     private DatabaseReference mFirebaseDatabase;
     private FirebaseDatabase mFirebaseInstance;
+    private StorageReference mFirebaseStorage;
+    private FirebaseStorage mFirebaseStorageInstance;
+
     private Uri selectedImage = null;
 
     @Override
@@ -78,7 +77,7 @@ public class EventCreate extends AppCompatActivity {
         String date = eventDate.getText().toString();
         String time = eventTime.getText().toString();
         String description = eventDescription.getText().toString();
-        //String owner = getSharedPreferences("userID", MODE_PRIVATE).toString();
+
 
         SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
         String owner = sharedPref.getString("userID", null);
@@ -89,8 +88,11 @@ public class EventCreate extends AppCompatActivity {
 
 
         mFirebaseInstance = FirebaseDatabase.getInstance();
-
         mFirebaseDatabase = mFirebaseInstance.getReference("markers");
+
+        mFirebaseStorageInstance = FirebaseStorage.getInstance();
+        mFirebaseStorage = mFirebaseStorageInstance.getReference("markers");
+
 
         String  markerID = mFirebaseDatabase.push().getKey();
 
@@ -102,8 +104,9 @@ public class EventCreate extends AppCompatActivity {
         mFirebaseDatabase.child(markerID).child("category").setValue(category);
         mFirebaseDatabase.child(markerID).child("owner").setValue(owner);
         //mFirebaseInstance.getReference("users").child(userID).child("friends").child(String.valueOf(listFriends.size())).setValue(result.getText());
-
         mFirebaseDatabase.child(markerID).child("users").child("0").setValue(owner);
+        mFirebaseStorage.child(markerID).putFile(selectedImage);
+
 
 
         MarkerOptions marker = new MarkerOptions()
@@ -129,8 +132,14 @@ public class EventCreate extends AppCompatActivity {
         switch(requestCode) {
             case 0:
                 if(resultCode == RESULT_OK){
-                    selectedImage = imageReturnedIntent.getData();
-                    eventPhoto.setImageURI(selectedImage);
+
+                    try {
+                        selectedImage = imageReturnedIntent.getData();
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
+                        eventPhoto.setImageBitmap(bitmap);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
 
                 }
@@ -138,8 +147,13 @@ public class EventCreate extends AppCompatActivity {
                 break;
             case 1:
                 if(resultCode == RESULT_OK){
-                    selectedImage = imageReturnedIntent.getData();
-                    eventPhoto.setImageURI(selectedImage);
+                    try {
+                        selectedImage = imageReturnedIntent.getData();
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
+                        eventPhoto.setImageBitmap(bitmap);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
         }

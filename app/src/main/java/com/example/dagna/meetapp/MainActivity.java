@@ -381,23 +381,6 @@ public class MainActivity extends AppCompatActivity
 
                     if (!(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
                         mMap.setMyLocationEnabled(true);
-//                        mFusedLocationClient.getLastLocation()
-//                                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-//                                    @Override
-//                                    public void onSuccess(Location loc) {
-//                                        // Got last known location. In some rare situations this can be null.
-//                                        if (loc != null) {
-//                                            location = loc;
-//                                            CameraUpdate center= CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),location.getLongitude()));
-//                                            CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
-//
-//                                            mMap.moveCamera(center);
-//                                            mMap.animateCamera(zoom);
-//
-//                                            new LastUsersLocation().execute(MainActivity.this);
-//                                        }
-//                                    }
-//                                });
                     }
 
                 }
