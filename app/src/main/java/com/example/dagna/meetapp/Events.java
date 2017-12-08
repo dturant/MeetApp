@@ -2,20 +2,27 @@ package com.example.dagna.meetapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.example.dagna.meetapp.helpers.EventAdapter;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,14 +37,18 @@ public class Events extends AppCompatActivity {
     private DatabaseReference mFirebaseDatabase;
     private FirebaseDatabase mFirebaseInstance;
 
+    private StorageReference mFirebaseStorage;
+    private FirebaseStorage mFirebaseStorageInstance;
+
     //LIST OF ARRAY STRINGS WHICH WILL SERVE AS LIST ITEMS
     ArrayList<String> listItems=new ArrayList<String>();
     ArrayList<String> listItemsKeys=new ArrayList<String>();
 
     //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
-    EventAdapter adapter;
     Context context;
-    List<EventObject> events;
+    ArrayList<EventObject> events;
+    EventAdapter adapter;
+    ListView list;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,23 +58,29 @@ public class Events extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         context=this;
-        events = new ArrayList<>();
 
 
-
+        mFirebaseStorageInstance = FirebaseStorage.getInstance();
 
         mFirebaseInstance = FirebaseDatabase.getInstance();
         mFirebaseDatabase = mFirebaseInstance.getReference("markers");
+
+
+
+        events = new ArrayList<>();
+        list = (ListView) findViewById(R.id.events_list);
+        adapter=new EventAdapter(context,
+                events);
+        list.setAdapter(adapter);
 
         mFirebaseDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                ListView list = (ListView) findViewById(R.id.events_list);
+                events.clear();
 
 
-
-                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                for (final DataSnapshot snapshot: dataSnapshot.getChildren()) {
 
                     HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
 
@@ -76,45 +93,49 @@ public class Events extends AppCompatActivity {
                             String markerTitle = (String) markerHashMap.get("title");
                             listItems.add(markerTitle);
                             listItemsKeys.add(snapshot.getKey());
-                            String name = (String) markerHashMap.get("title");
-                            String date = (String) markerHashMap.get("date");
-                            String time = (String) markerHashMap.get("time");
-                            String description = (String) markerHashMap.get("description");
+                            final String id = snapshot.getKey();
+                            final String name = (String) markerHashMap.get("title");
+                            final String date = (String) markerHashMap.get("date");
+                            final String time = (String) markerHashMap.get("time");
+                            final String description = (String) markerHashMap.get("description");
                             HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
-                            LatLng latLng = new LatLng(markerLoc.get("latitude"),markerLoc.get("longitude"));
-                            String owner = (String) markerHashMap.get("owner");
-                            Category category = Category.valueOf((String) markerHashMap.get("category"));
-                            //TODO change for the image from the DB
-                            Integer imageId = R.drawable.abc;
+                            final LatLng latLng = new LatLng(markerLoc.get("latitude"),markerLoc.get("longitude"));
+                            final String owner = (String) markerHashMap.get("owner");
+                            final Category category = Category.valueOf((String) markerHashMap.get("category"));
 
-                            EventObject e = new EventObject(name,date,time,description,latLng,owner,category,imageId);
-                            events.add(e);
+                            mFirebaseStorageInstance.getReference("markers").child(snapshot.getKey()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+
+                                    mFirebaseStorage = mFirebaseStorageInstance.getReference("markers").child(snapshot.getKey());
+                                    EventObject e = new EventObject(id,name,date,time,description,latLng,owner,category,mFirebaseStorage);
+
+                                    events.add(e);
+                                    adapter.notifyDataSetChanged();
+
+                                }
+
+                            }).addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception exception) {
+
+                                                            mFirebaseStorage =mFirebaseStorageInstance.getReference("markers").child("default.png");
+                                                            EventObject e = new EventObject(id,name,date,time,description,latLng,owner,category,mFirebaseStorage);
+                                                            events.add(e);
+                                                            adapter.notifyDataSetChanged();
+                                                            }
+                                                    });
+
                         }
                     } catch (ParseException e) {
                         e.printStackTrace();
 
 
                     }
-
-
-
-
                 }
 
 
-                adapter=new EventAdapter(context,
-                        R.layout.event_list_item);
-
-                for(int i=0;i<events.size();i++) {
-                    adapter.add(events.get(i));
-                }
-
-
-
-                list.setAdapter(adapter);
-
-
-
+               // adapter.notifyDataSetChanged();
                 list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
                     @Override
@@ -122,10 +143,12 @@ public class Events extends AppCompatActivity {
                                             int position, long id) {
 
                         Intent intent = new Intent(Events.this, Event.class);
-                        String message = listItemsKeys.get(position);
-                        intent.putExtra(EXTRA_MESSAGE, message);
-                        startActivity(intent);
-
+                        Object o =parent.getAdapter().getItem(position);
+                        if(o instanceof  EventObject){
+                            String message = ((EventObject) o).getId();
+                            intent.putExtra(EXTRA_MESSAGE, message);
+                            startActivity(intent);
+                        }
                     }
 
                 });
@@ -137,16 +160,6 @@ public class Events extends AppCompatActivity {
             }
         });
 
-
-
-
-
-
-
-
-
     }
-
-
 
 }

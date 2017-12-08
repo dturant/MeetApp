@@ -13,6 +13,8 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
+import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
+
 /**
  * Created by dagna on 30.11.2017; source https://gist.github.com/melanke/7158342
  */

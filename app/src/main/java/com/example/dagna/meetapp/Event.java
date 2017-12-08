@@ -1,8 +1,11 @@
 package com.example.dagna.meetapp;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -12,17 +15,24 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,9 +40,14 @@ import java.util.HashMap;
 public class Event extends AppCompatActivity {
 TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescription;
     Button cancelButton, goButton;
+    ImageView eventPhoto;
 
     private DatabaseReference mFirebaseDatabase;
     private FirebaseDatabase mFirebaseInstance;
+
+    private StorageReference mFirebaseStorage;
+    private FirebaseStorage mFirebaseStorageInstance;
+
     public String markerID;
     private String userID;
     public int pos = 0;
@@ -43,6 +58,7 @@ TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescrip
 
     //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
     ArrayAdapter<String> adapter;
+    Context context;
 
 
     public final static String EXTRA_MESSAGE = "com.example.dagna.meetapp.MESSAGE";
@@ -53,7 +69,7 @@ TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescrip
         setContentView(R.layout.activity_event);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        context=this;
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
@@ -76,9 +92,27 @@ TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescrip
         host.addTab(spec2);
 
 
+        eventPhoto = (ImageView) findViewById(R.id.event_photo);
+        mFirebaseStorageInstance = FirebaseStorage.getInstance();
+        mFirebaseStorage = mFirebaseStorageInstance.getReference("markers").child(markerID);
+
+        mFirebaseStorageInstance.getReference("markers").child(markerID).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Glide.with(context).using(new FirebaseImageLoader()).load(mFirebaseStorage).into(eventPhoto);
+            }
+
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Glide.with(context).using(new FirebaseImageLoader()).load(mFirebaseStorageInstance.getReference("markers").child("default.png")).into(eventPhoto);
+            }
+        });
+
+
+
+
         mFirebaseInstance = FirebaseDatabase.getInstance();
-
-
         mFirebaseDatabase = mFirebaseInstance.getReference("markers").child(markerID);
 
 

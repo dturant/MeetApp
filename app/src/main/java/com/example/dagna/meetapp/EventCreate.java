@@ -105,7 +105,10 @@ public class EventCreate extends AppCompatActivity {
         mFirebaseDatabase.child(markerID).child("owner").setValue(owner);
         //mFirebaseInstance.getReference("users").child(userID).child("friends").child(String.valueOf(listFriends.size())).setValue(result.getText());
         mFirebaseDatabase.child(markerID).child("users").child("0").setValue(owner);
-        mFirebaseStorage.child(markerID).putFile(selectedImage);
+
+            mFirebaseStorage.child(markerID).putFile(selectedImage);
+
+
 
 
 

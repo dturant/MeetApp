@@ -1,12 +1,14 @@
 package com.example.dagna.meetapp;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.firebase.storage.StorageReference;
 
 /**
  * Created by dagna on 18.11.2017.
  */
 
 public class EventObject {
+    private String id;
     private String name;
     private String date;
     private String time;
@@ -14,7 +16,15 @@ public class EventObject {
     private LatLng location;
     private String owner;
     private Category category;
-    private Integer imageId;
+    private StorageReference imageRef;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -72,15 +82,16 @@ public class EventObject {
         this.category = category;
     }
 
-    public Integer getImageId() {
-        return imageId;
+    public StorageReference getImageRef() {
+        return imageRef;
     }
 
-    public void setImageId(Integer imageId) {
-        this.imageId = imageId;
+    public void setImageRef(StorageReference imageRef) {
+        this.imageRef = imageRef;
     }
 
-    public EventObject(String name, String date, String time, String description, LatLng location, String owner, Category category, Integer imageId) {
+    public EventObject(String id, String name, String date, String time, String description, LatLng location, String owner, Category category, StorageReference imageRef) {
+        this.id = id;
         this.name = name;
         this.date = date;
         this.time = time;
@@ -88,6 +99,21 @@ public class EventObject {
         this.location = location;
         this.owner = owner;
         this.category = category;
-        this.imageId = imageId;
+        this.imageRef = imageRef;
+    }
+
+    @Override
+    public String toString() {
+        return "EventObject{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", date='" + date + '\'' +
+                ", time='" + time + '\'' +
+                ", description='" + description + '\'' +
+                ", location=" + location +
+                ", owner='" + owner + '\'' +
+                ", category=" + category +
+                ", imageRef=" + imageRef +
+                '}';
     }
 }

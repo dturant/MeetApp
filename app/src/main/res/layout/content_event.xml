@@ -8,17 +8,22 @@
     tools:context="com.example.dagna.meetapp.Event"
     tools:showIn="@layout/activity_event"
     android:orientation="vertical">
+
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="2"
-        android:background="@color/colorAccent"
+        android:id="@+id/event_photo"
+        android:scaleType="centerCrop"
+        android:layout_weight="4"
         />
+
+
     <TabHost
         android:id="@+id/groups_tab"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1">
+        android:layout_weight="3"
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
