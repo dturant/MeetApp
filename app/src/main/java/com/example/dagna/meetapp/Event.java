@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -77,6 +78,8 @@ TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescrip
 
         SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
         userID = sharedPref.getString("userID", null);
+
+        setStatusBarTranslucent(true);
 
         TabHost host = (TabHost)findViewById(R.id.groups_tab);
         host.setup();
@@ -257,6 +260,14 @@ TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescrip
 
         goButton.setVisibility(View.INVISIBLE);
 
+    }
+
+    protected void setStatusBarTranslucent(boolean makeTranslucent) {
+        if (makeTranslucent) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
     }
 
 }

@@ -61,6 +61,7 @@ public class EventAdapter extends ArrayAdapter<EventObject> {
         description.setText(e.getDescription());
 
 
+
         return convertView;
     }
 }
