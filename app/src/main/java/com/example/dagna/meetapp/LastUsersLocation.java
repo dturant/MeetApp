@@ -51,7 +51,9 @@ public class LastUsersLocation extends AsyncTask<Context, Void, Void> {
 
                 for (DataSnapshot snapshot: dataSnapshot.getChildren()){
 
-                    mFirebaseInstance.getReference("users").child(snapshot.getValue().toString()).child("location").addListenerForSingleValueEvent(new ValueEventListener() {
+                    final String friendID = snapshot.getValue().toString();
+
+                    mFirebaseInstance.getReference("users").child(friendID).child("location").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if (dataSnapshot.hasChildren()){
@@ -59,7 +61,7 @@ public class LastUsersLocation extends AsyncTask<Context, Void, Void> {
 
                                 HashMap<String, Double> friendLoc = (HashMap<String, Double>) dataSnapshot.getValue();
                                 LatLng ltlg =  new LatLng(friendLoc.get("latitude"),friendLoc.get("longitude"));
-                                ma.setFriendMarker(ltlg);
+                                ma.setFriendMarker(friendID,ltlg);
                             }
 
                         }

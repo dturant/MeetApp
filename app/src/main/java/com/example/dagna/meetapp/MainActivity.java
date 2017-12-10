@@ -138,9 +138,9 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    public final void setFriendMarker(LatLng location){
+    public final void setFriendMarker(String friendID, LatLng location){
 
-        MarkerOptions markerOptions = new MarkerOptions().position(location).icon(BitmapDescriptorFactory
+        MarkerOptions markerOptions = new MarkerOptions().title(friendID).snippet("friend").position(location).icon(BitmapDescriptorFactory
                 .defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
         mMap.addMarker(markerOptions);
 
@@ -315,7 +315,7 @@ public class MainActivity extends AppCompatActivity
                         if( new Date().before(markerDay)){
                             HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
 
-                            MarkerOptions markerOptions = new MarkerOptions().title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"),markerLoc.get("longitude")));
+                            MarkerOptions markerOptions = new MarkerOptions().snippet("event").title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"),markerLoc.get("longitude")));
                             mMap.addMarker(markerOptions);
                         }
                     } catch (ParseException e) {
@@ -342,11 +342,18 @@ public class MainActivity extends AppCompatActivity
             @Override
             public boolean onMarkerClick(Marker marker) {
 
-                Intent intent = new Intent(MainActivity.this, Event.class);
+                Intent intent;
+
+                if(marker.getSnippet().equals("event")){
+                    intent = new Intent(MainActivity.this, Event.class);
+
+                }else{
+                    intent = new Intent(MainActivity.this, Profile.class);
+                }
+
                 String message = marker.getTitle();
                 intent.putExtra(EXTRA_MESSAGE, message);
                 startActivity(intent);
-
                 return true;
 
             }
