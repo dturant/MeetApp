@@ -10,6 +10,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_notifications">Notifications</string>
     <string name="title_activity_events">Events</string>
+    <string name="title_activity_favorites">Favorites</string>
     <string name="title_activity_profile">Profile</string>
     <string name="title_activity_settings">Settings</string>
     <string name="title_activity_register">Register</string>
@@ -38,6 +39,7 @@
     <string name="title_activity_event">Event</string>
     <string name="event_cancel">Cancel Event</string>
     <string name="event_go">I will go</string>
+    <string name="long_press_map">Pick one</string>
 
 
     <!-- filter dialog-->

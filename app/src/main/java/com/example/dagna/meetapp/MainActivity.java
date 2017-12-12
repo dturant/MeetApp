@@ -58,7 +58,6 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, FilterDialog.FilterDialogListener, LocationListener {
 
-
     private GoogleMap mMap;
     public Location location = null;
     private int LOCATION_PERMISSION_REQUEST_CODE = 1;
@@ -82,7 +81,6 @@ public class MainActivity extends AppCompatActivity
 
         SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
         userID = sharedPref.getString("userID", null);
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -137,8 +135,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-
-    public final void setFriendMarker(String friendID, LatLng location){
+    public final void setFriendMarker(String friendID, LatLng location) {
 
         MarkerOptions markerOptions = new MarkerOptions().title(friendID).snippet("friend").position(location).icon(BitmapDescriptorFactory
                 .defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
@@ -146,10 +143,10 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public final LatLng getLocation(){
+    public final LatLng getLocation() {
 
-        if (!(location == null)){
-            return new LatLng(location.getLatitude(),location.getLongitude());
+        if (!(location == null)) {
+            return new LatLng(location.getLatitude(), location.getLongitude());
         }
         return null;
     }
@@ -158,7 +155,7 @@ public class MainActivity extends AppCompatActivity
     public void onDialogPositiveClick(DialogFragment dialog) {
         seletedItems = FilterDialog.getSeletedItems();
         Log.d("selected items", seletedItems.toString());
-        if(seletedItems.size()>0) {
+        if (seletedItems.size() > 0) {
             mMap.clear();
 
             if (seletedItems.contains(1)) { //your events
@@ -195,10 +192,9 @@ public class MainActivity extends AppCompatActivity
         }
 
 
-
     }
 
-    private void getResultsFromFirebase(DataSnapshot dataSnapshot){
+    private void getResultsFromFirebase(DataSnapshot dataSnapshot) {
         Log.d("LOL", "LOL");
         if (dataSnapshot.exists()) {
             Log.d("LOL2", "LOL");
@@ -207,10 +203,10 @@ public class MainActivity extends AppCompatActivity
                 try {
                     Date markerDay = new SimpleDateFormat("dd/MM/yyyy").parse(markerHashMap.get("date").toString());
 
-                    if( new Date().before(markerDay)){
+                    if (new Date().before(markerDay)) {
                         HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
 
-                        MarkerOptions markerOptions = new MarkerOptions().title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"),markerLoc.get("longitude")));
+                        MarkerOptions markerOptions = new MarkerOptions().title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"), markerLoc.get("longitude")));
                         mMap.addMarker(markerOptions);
                     }
                 } catch (ParseException e) {
@@ -240,14 +236,14 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        builder.setNegativeButton("No",new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //if user select "No", just cancel this dialog and continue with app
                 dialog.cancel();
             }
         });
-        AlertDialog alert=builder.create();
+        AlertDialog alert = builder.create();
         alert.show();
     }
 
@@ -255,7 +251,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
         LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -263,10 +258,9 @@ public class MainActivity extends AppCompatActivity
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                     LOCATION_PERMISSION_REQUEST_CODE);
-        }else{
+        } else {
+
             mMap.setMyLocationEnabled(true);
-
-
             mFusedLocationClient.getLastLocation()
                     .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                         @Override
@@ -274,28 +268,39 @@ public class MainActivity extends AppCompatActivity
                             // Got last known location. In some rare situations this can be null.
                             if (loc != null) {
                                 location = loc;
-                                CameraUpdate center= CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),location.getLongitude()));
-                                CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
-
+                                CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
+                                CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
                                 mMap.moveCamera(center);
                                 mMap.animateCamera(zoom);
-
-
                             }
                         }
                     });
-
         }
-
 
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
-            public void onMapLongClick(LatLng latLng) {
-
-                Intent intent = new Intent(MainActivity.this, EventCreate.class);
-                String message = String.valueOf(latLng.latitude) + "," + String.valueOf(latLng.longitude);
-                intent.putExtra(EXTRA_MESSAGE, message);
-                startActivityForResult(intent, REQUEST_CODE);
+            public void onMapLongClick(final LatLng latLng) {
+                CharSequence longPress[] = new CharSequence[] {"Event", "Favorite"};
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(R.string.long_press_map)
+                        .setItems(longPress, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (which == 0){ //Event
+                                    Intent intent = new Intent(MainActivity.this, EventCreate.class);
+                                    String message = String.valueOf(latLng.latitude) + "," + String.valueOf(latLng.longitude);
+                                    intent.putExtra(EXTRA_MESSAGE, message);
+                                    startActivityForResult(intent, REQUEST_CODE);
+                                } else if (which == 1){ //Favorite
+                                    Intent intent = new Intent(MainActivity.this, EventCreate.class); //create favoritCreate
+                                    String message = String.valueOf(latLng.latitude) + "," + String.valueOf(latLng.longitude);
+                                    intent.putExtra(EXTRA_MESSAGE, message);
+                                    startActivityForResult(intent, REQUEST_CODE);
+                                } else {
+                                    dialog.cancel();
+                                }
+                            }
+                        });
+                builder.show();
             }
         });
 
@@ -306,16 +311,16 @@ public class MainActivity extends AppCompatActivity
         mFirebaseDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
 
                     HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
                     try {
                         Date markerDay = new SimpleDateFormat("dd/MM/yyyy").parse(markerHashMap.get("date").toString());
 
-                        if( new Date().before(markerDay)){
+                        if (new Date().before(markerDay)) {
                             HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
 
-                            MarkerOptions markerOptions = new MarkerOptions().snippet("event").title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"),markerLoc.get("longitude")));
+                            MarkerOptions markerOptions = new MarkerOptions().snippet("event").title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"), markerLoc.get("longitude")));
                             mMap.addMarker(markerOptions);
                         }
                     } catch (ParseException e) {
@@ -323,9 +328,6 @@ public class MainActivity extends AppCompatActivity
 
 
                     }
-
-
-
 
 
                 }
@@ -344,10 +346,10 @@ public class MainActivity extends AppCompatActivity
 
                 Intent intent;
 
-                if(marker.getSnippet().equals("event")){
+                if (marker.getSnippet().equals("event")) {
                     intent = new Intent(MainActivity.this, Event.class);
 
-                }else{
+                } else {
                     intent = new Intent(MainActivity.this, Profile.class);
                 }
 
@@ -363,7 +365,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
@@ -376,8 +378,6 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
-
-
 
 
     @Override
@@ -398,7 +398,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    public void onHeaderPress(View view){
+    public void onHeaderPress(View view) {
 
         SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
         String userID = sharedPref.getString("userID", null);
@@ -436,7 +436,6 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
 
 
-
         int id = item.getItemId();
 
         if (id == R.id.nav_notifications) {
@@ -449,6 +448,10 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, Events.class);
             startActivity(intent);
 
+        } else if (id == R.id.nav_favorites) {
+
+            Intent intent = new Intent(this, Favorites.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_groups) {
             Intent intent = new Intent(this, Groups.class);
@@ -472,7 +475,6 @@ public class MainActivity extends AppCompatActivity
         }
 
 
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -484,8 +486,8 @@ public class MainActivity extends AppCompatActivity
         if (!(ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
             mMap.setMyLocationEnabled(true);
             location = loc;
-            CameraUpdate center= CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),location.getLongitude()));
-            CameraUpdate zoom=CameraUpdateFactory.zoomTo(15);
+            CameraUpdate center = CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
+            CameraUpdate zoom = CameraUpdateFactory.zoomTo(15);
 
             mMap.moveCamera(center);
             mMap.animateCamera(zoom);

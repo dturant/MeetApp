@@ -51,6 +51,15 @@
                 android:value="com.example.dagna.meetapp.MainActivity" />
         </activity>
         <activity
+            android:name=".Favorites"
+            android:label="@string/title_activity_favorites"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.dagna.meetapp.MainActivity" />
+        </activity>
+        <activity
             android:name=".Profile"
             android:label="@string/title_activity_profile"
             android:parentActivityName=".MainActivity"
