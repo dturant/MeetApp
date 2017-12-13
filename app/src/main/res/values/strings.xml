@@ -53,6 +53,15 @@
         <item>@string/filter_option_1</item>
         <item>@string/filter_option_2</item>
     </string-array>
+    <string name="title_activity_favorite_create">Create Favorite</string>
+
+    <!--Create favorite-->
+    <string name="favorite_name">Name</string>
+    <string name="favorite_location">Location</string>
+    <string name="favorite_description">Description</string>
+    <string name="favorite_photo">Upload photo</string>
+    <string name="favorite_add">Add Favorite</string>
+    <string name="title_activity_favorite">Favorite</string>
 
 
 </resources>

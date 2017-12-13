@@ -13,7 +13,8 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.STORAGE" />
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.back" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
@@ -53,6 +54,15 @@
         <activity
             android:name=".Favorites"
             android:label="@string/title_activity_favorites"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.dagna.meetapp.MainActivity" />
+        </activity>
+        <activity
+            android:name=".Favorite"
+            android:label="@string/title_activity_favorite"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -108,7 +118,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-
         <activity
             android:name=".EventCreate"
             android:label="@string/title_activity_event_create"
@@ -130,6 +139,15 @@
         <activity
             android:name=".Event"
             android:label="@string/title_activity_event"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.dagna.meetapp.MainActivity" />
+        </activity>
+        <activity
+            android:name=".FavoriteCreate"
+            android:label="@string/title_activity_favorite_create"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data

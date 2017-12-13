@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity
         if (seletedItems.size() > 0) {
             mMap.clear();
 
-            if (seletedItems.contains(1)) { //your events
+            if (seletedItems.contains(1)) { //your favorites
                 Query query = mFirebaseDatabase.orderByChild("owner").equalTo(userID);
                 Log.d("LOL1", "LOL");
                 query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -291,7 +291,7 @@ public class MainActivity extends AppCompatActivity
                                     intent.putExtra(EXTRA_MESSAGE, message);
                                     startActivityForResult(intent, REQUEST_CODE);
                                 } else if (which == 1){ //Favorite
-                                    Intent intent = new Intent(MainActivity.this, EventCreate.class); //create favoritCreate
+                                    Intent intent = new Intent(MainActivity.this, FavoriteCreate.class); //create favoritCreate
                                     String message = String.valueOf(latLng.latitude) + "," + String.valueOf(latLng.longitude);
                                     intent.putExtra(EXTRA_MESSAGE, message);
                                     startActivityForResult(intent, REQUEST_CODE);
@@ -348,6 +348,9 @@ public class MainActivity extends AppCompatActivity
 
                 if (marker.getSnippet().equals("event")) {
                     intent = new Intent(MainActivity.this, Event.class);
+
+                }else if(marker.getSnippet().equals("favorite")){
+                    intent = new Intent(MainActivity.this, Favorite.class);
 
                 } else {
                     intent = new Intent(MainActivity.this, Profile.class);

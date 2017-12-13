@@ -114,6 +114,7 @@ public class EventCreate extends AppCompatActivity {
 
         MarkerOptions marker = new MarkerOptions()
                 .position(eventLocation)
+                .snippet("event")
                 .title(markerID);
 
         intent.putExtra("marker",marker);

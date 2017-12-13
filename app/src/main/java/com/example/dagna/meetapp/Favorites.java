@@ -1,18 +1,17 @@
 package com.example.dagna.meetapp;
 
-import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.example.dagna.meetapp.helpers.EventAdapter;
+import com.example.dagna.meetapp.helpers.FavoriteAdapter;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -24,12 +23,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 public class Favorites extends AppCompatActivity {
 
@@ -45,10 +40,11 @@ public class Favorites extends AppCompatActivity {
     ArrayList<String> listItemsKeys=new ArrayList<String>();
 
     //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
-    Context context;
-    ArrayList<EventObject> events;
-    EventAdapter adapter;
+
+    ArrayList<FavoriteObject> favorites;
+    FavoriteAdapter adapter;
     ListView list;
+    String userID;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,27 +53,29 @@ public class Favorites extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        context=this;
+
+        SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
+        userID = sharedPref.getString("userID", null);
 
 
         mFirebaseStorageInstance = FirebaseStorage.getInstance();
 
         mFirebaseInstance = FirebaseDatabase.getInstance();
-        mFirebaseDatabase = mFirebaseInstance.getReference("markers");
+        mFirebaseDatabase = mFirebaseInstance.getReference("favorites");
 
 
 
-        events = new ArrayList<>();
-        list = (ListView) findViewById(R.id.events_list);
-        adapter=new EventAdapter(context,
-                events);
+        favorites = new ArrayList<>();
+        list = (ListView) findViewById(R.id.favorites_list);
+        adapter=new FavoriteAdapter(this,
+                favorites);
         list.setAdapter(adapter);
 
         mFirebaseDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                events.clear();
+                favorites.clear();
 
 
                 for (final DataSnapshot snapshot: dataSnapshot.getChildren()) {
@@ -85,53 +83,45 @@ public class Favorites extends AppCompatActivity {
                     HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
 
 
-                    try {
-                        Date markerDay = new SimpleDateFormat("dd/MM/yyyy").parse((String) markerHashMap.get("date"));
 
-                        if( new Date().before(markerDay) || new Date().equals(markerDay)){
 
-                            String markerTitle = (String) markerHashMap.get("title");
-                            listItems.add(markerTitle);
-                            listItemsKeys.add(snapshot.getKey());
-                            final String id = snapshot.getKey();
-                            final String name = (String) markerHashMap.get("title");
-                            final String date = (String) markerHashMap.get("date");
-                            final String time = (String) markerHashMap.get("time");
-                            final String description = (String) markerHashMap.get("description");
-                            HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
-                            final LatLng latLng = new LatLng(markerLoc.get("latitude"),markerLoc.get("longitude"));
-                            final String owner = (String) markerHashMap.get("owner");
-                            final Category category = Category.valueOf((String) markerHashMap.get("category"));
+                    if( userID.equals((String) markerHashMap.get("owner")) ){
 
-                            mFirebaseStorageInstance.getReference("markers").child(snapshot.getKey()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
+                        String markerTitle = (String) markerHashMap.get("title");
+                        listItems.add(markerTitle);
+                        listItemsKeys.add(snapshot.getKey());
+                        final String id = snapshot.getKey();
+                        final String name = (String) markerHashMap.get("title");
+                        final String description = (String) markerHashMap.get("description");
+                        HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
+                        final LatLng latLng = new LatLng(markerLoc.get("latitude"),markerLoc.get("longitude"));
+                        final String owner = (String) markerHashMap.get("owner");
 
-                                    mFirebaseStorage = mFirebaseStorageInstance.getReference("markers").child(snapshot.getKey());
-                                    EventObject e = new EventObject(id,name,date,time,description,latLng,owner,category,mFirebaseStorage);
+                        mFirebaseStorageInstance.getReference("favorites").child(snapshot.getKey()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
 
-                                    events.add(e);
-                                    adapter.notifyDataSetChanged();
+                                mFirebaseStorage = mFirebaseStorageInstance.getReference("favorites").child(snapshot.getKey());
+                                FavoriteObject e = new FavoriteObject(id,name,description,latLng,owner,mFirebaseStorage);
 
-                                }
+                                favorites.add(e);
+                                adapter.notifyDataSetChanged();
 
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception exception) {
+                            }
 
-                                    mFirebaseStorage =mFirebaseStorageInstance.getReference("markers").child("default.png");
-                                    EventObject e = new EventObject(id,name,date,time,description,latLng,owner,category,mFirebaseStorage);
-                                    events.add(e);
-                                    adapter.notifyDataSetChanged();
-                                }
-                            });
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
 
-                        }
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-
+                                mFirebaseStorage =mFirebaseStorageInstance.getReference("favorites").child("default.png");
+                                FavoriteObject e = new FavoriteObject(id,name,description,latLng,owner,mFirebaseStorage);
+                                favorites.add(e);
+                                adapter.notifyDataSetChanged();
+                            }
+                        });
 
                     }
+
                 }
 
 
@@ -142,10 +132,10 @@ public class Favorites extends AppCompatActivity {
                     public void onItemClick(AdapterView<?> parent, final View view,
                                             int position, long id) {
 
-                        Intent intent = new Intent(Favorites.this, Event.class);
-                        Object o =parent.getAdapter().getItem(position);
-                        if(o instanceof  EventObject){
-                            String message = ((EventObject) o).getId();
+                        Intent intent = new Intent(Favorites.this, Favorite.class);
+                        Object o = parent.getAdapter().getItem(position);
+                        if(o instanceof  FavoriteObject){
+                            String message = ((FavoriteObject) o).getId();
                             intent.putExtra(EXTRA_MESSAGE, message);
                             startActivity(intent);
                         }
