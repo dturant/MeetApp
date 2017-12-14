@@ -8,6 +8,7 @@
     tools:context="com.example.dagna.meetapp.Favorite"
     tools:showIn="@layout/activity_favorite"
     android:orientation="vertical"
+    android:gravity="center_vertical"
     >
 
     <FrameLayout
@@ -36,11 +37,21 @@
             />
     </FrameLayout>
 
+    <RatingBar
+        android:theme="@style/RatingBar"
+        android:rating="3.5"
+        android:stepSize="0.5"
+        android:numStars="5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fillViewport="true"
+        />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/favorite_description"
-        android:textSize="30sp"
+        android:textSize="20sp"
         android:textColor="@android:color/black"
         android:layout_gravity="bottom"
         android:textAlignment="center"
