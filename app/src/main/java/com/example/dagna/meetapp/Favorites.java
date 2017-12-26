@@ -61,7 +61,7 @@ public class Favorites extends AppCompatActivity {
         mFirebaseStorageInstance = FirebaseStorage.getInstance();
 
         mFirebaseInstance = FirebaseDatabase.getInstance();
-        mFirebaseDatabase = mFirebaseInstance.getReference("favorites");
+        mFirebaseDatabase = mFirebaseInstance.getReference("users").child(userID).child("favourites");
 
 
 
@@ -85,7 +85,7 @@ public class Favorites extends AppCompatActivity {
 
 
 
-                    if( userID.equals((String) markerHashMap.get("owner")) ){
+
 
                         String markerTitle = (String) markerHashMap.get("title");
                         listItems.add(markerTitle);
@@ -95,14 +95,13 @@ public class Favorites extends AppCompatActivity {
                         final String description = (String) markerHashMap.get("description");
                         HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
                         final LatLng latLng = new LatLng(markerLoc.get("latitude"),markerLoc.get("longitude"));
-                        final String owner = (String) markerHashMap.get("owner");
 
                         mFirebaseStorageInstance.getReference("favorites").child(snapshot.getKey()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
 
                                 mFirebaseStorage = mFirebaseStorageInstance.getReference("favorites").child(snapshot.getKey());
-                                FavoriteObject e = new FavoriteObject(id,name,description,latLng,owner,mFirebaseStorage);
+                                FavoriteObject e = new FavoriteObject(id,name,description,latLng,mFirebaseStorage);
 
                                 favorites.add(e);
                                 adapter.notifyDataSetChanged();
@@ -114,13 +113,13 @@ public class Favorites extends AppCompatActivity {
                             public void onFailure(@NonNull Exception exception) {
 
                                 mFirebaseStorage =mFirebaseStorageInstance.getReference("favorites").child("default.png");
-                                FavoriteObject e = new FavoriteObject(id,name,description,latLng,owner,mFirebaseStorage);
+                                FavoriteObject e = new FavoriteObject(id,name,description,latLng,mFirebaseStorage);
                                 favorites.add(e);
                                 adapter.notifyDataSetChanged();
                             }
                         });
 
-                    }
+
 
                 }
 

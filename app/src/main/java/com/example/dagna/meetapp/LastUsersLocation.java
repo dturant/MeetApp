@@ -3,7 +3,6 @@ package com.example.dagna.meetapp;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
@@ -24,6 +23,7 @@ public class LastUsersLocation extends AsyncTask<Context, Void, Void> {
     private DatabaseReference mFirebaseDatabase;
     private FirebaseDatabase mFirebaseInstance;
     public String userID;
+    public String shareLocation;
 
     public MainActivity ma;
 
@@ -34,7 +34,15 @@ public class LastUsersLocation extends AsyncTask<Context, Void, Void> {
 
 
         mFirebaseInstance = FirebaseDatabase.getInstance();
-        mFirebaseInstance.getReference("users").child(userID).child("location").setValue(ma.getLocation());
+
+        LatLng loc = ma.getLocation();
+
+
+
+        if(!(loc==null) && !(shareLocation==null)){
+            mFirebaseInstance.getReference("users").child(userID).child("location").setValue(loc);
+        }
+
 
 
 
@@ -57,7 +65,6 @@ public class LastUsersLocation extends AsyncTask<Context, Void, Void> {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if (dataSnapshot.hasChildren()){
-                             Log.i("AQUI",dataSnapshot.getValue().toString());
 
                                 HashMap<String, Double> friendLoc = (HashMap<String, Double>) dataSnapshot.getValue();
                                 LatLng ltlg =  new LatLng(friendLoc.get("latitude"),friendLoc.get("longitude"));
@@ -113,6 +120,9 @@ public class LastUsersLocation extends AsyncTask<Context, Void, Void> {
 
         SharedPreferences sharedPref = contexts[0].getSharedPreferences("userID", MODE_PRIVATE);
         userID = sharedPref.getString("userID", null);
+
+        SharedPreferences sharedPref2 = contexts[0].getSharedPreferences("showLocation", MODE_PRIVATE);
+        shareLocation = sharedPref2.getString("showLocation", null);
 
         try {
             callLocationsFunctions();

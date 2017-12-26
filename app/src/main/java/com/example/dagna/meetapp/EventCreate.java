@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseReference;
@@ -113,6 +114,7 @@ public class EventCreate extends AppCompatActivity {
 
 
         MarkerOptions marker = new MarkerOptions()
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_event))
                 .position(eventLocation)
                 .snippet("event")
                 .title(markerID);

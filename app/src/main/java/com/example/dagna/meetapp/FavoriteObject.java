@@ -9,7 +9,6 @@ public class FavoriteObject {
     private String name;
     private String description;
     private LatLng location;
-    private String owner;
     private StorageReference imageRef;
 
     public String getId() {
@@ -44,14 +43,6 @@ public class FavoriteObject {
         this.location = location;
     }
 
-    public String getOwner() {
-        return owner;
-    }
-
-    public void setOwner(String owner) {
-        this.owner = owner;
-    }
-
     public StorageReference getImageRef() {
         return imageRef;
     }
@@ -60,12 +51,11 @@ public class FavoriteObject {
         this.imageRef = imageRef;
     }
 
-    public FavoriteObject(String id, String name, String description, LatLng location, String owner, StorageReference imageRef) {
+    public FavoriteObject(String id, String name, String description, LatLng location, StorageReference imageRef) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.location = location;
-        this.owner = owner;
         this.imageRef = imageRef;
     }
 
@@ -76,7 +66,6 @@ public class FavoriteObject {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", location=" + location +
-                ", owner='" + owner + '\'' +
                 ", imageRef=" + imageRef +
                 '}';
     }

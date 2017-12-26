@@ -12,7 +12,7 @@
             android:title="Events" />
         <item
             android:id="@+id/nav_favorites"
-            android:icon="@drawable/ic_event_black_24dp"
+            android:icon="@drawable/ic_favorites"
             android:title="Favorites" />
         <item
             android:id="@+id/nav_groups"

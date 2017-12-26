@@ -69,7 +69,7 @@ public class FavoriteCreate extends AppCompatActivity {
 
 
         mFirebaseInstance = FirebaseDatabase.getInstance();
-        mFirebaseDatabase = mFirebaseInstance.getReference("favorites");
+        mFirebaseDatabase = mFirebaseInstance.getReference("users").child(owner).child("favourites");
 
         mFirebaseStorageInstance = FirebaseStorage.getInstance();
         mFirebaseStorage = mFirebaseStorageInstance.getReference("favorites");
@@ -80,7 +80,7 @@ public class FavoriteCreate extends AppCompatActivity {
         mFirebaseDatabase.child(favoriteID).child("title").setValue(name);
         mFirebaseDatabase.child(favoriteID).child("location").setValue(favoriteLocation);
         mFirebaseDatabase.child(favoriteID).child("description").setValue(description);
-        mFirebaseDatabase.child(favoriteID).child("owner").setValue(owner);
+//        mFirebaseDatabase.child(favoriteID).child("owner").setValue(owner);
 
         mFirebaseStorage.child(favoriteID).putFile(selectedImage);
 
@@ -89,8 +89,7 @@ public class FavoriteCreate extends AppCompatActivity {
                 .position(favoriteLocation)
                 .snippet("favorite")
                 .title(favoriteID)
-                .icon(BitmapDescriptorFactory
-                        .defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_star));
 
         intent.putExtra("marker", marker);
 

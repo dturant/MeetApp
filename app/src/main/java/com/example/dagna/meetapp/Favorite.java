@@ -83,7 +83,7 @@ public class Favorite extends AppCompatActivity {
 
 
         mFirebaseInstance = FirebaseDatabase.getInstance();
-        mFirebaseDatabase = mFirebaseInstance.getReference("favorites").child(markerID);
+        mFirebaseDatabase = mFirebaseInstance.getReference("users").child(userID).child("favourites").child(markerID);
 
 
         mFirebaseDatabase.addListenerForSingleValueEvent(new ValueEventListener() {

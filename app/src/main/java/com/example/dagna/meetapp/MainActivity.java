@@ -131,14 +131,16 @@ public class MainActivity extends AppCompatActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        
+
         new LastUsersLocation().execute(MainActivity.this);
 
     }
 
     public final void setFriendMarker(String friendID, LatLng location) {
 
-        MarkerOptions markerOptions = new MarkerOptions().title(friendID).snippet("friend").position(location).icon(BitmapDescriptorFactory
-                .defaultMarker(BitmapDescriptorFactory.HUE_CYAN));
+        MarkerOptions markerOptions = new MarkerOptions().title(friendID).snippet("friend").position(location)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_friend_marker));
         mMap.addMarker(markerOptions);
 
     }
@@ -320,7 +322,7 @@ public class MainActivity extends AppCompatActivity
                         if (new Date().before(markerDay)) {
                             HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
 
-                            MarkerOptions markerOptions = new MarkerOptions().snippet("event").title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"), markerLoc.get("longitude")));
+                            MarkerOptions markerOptions = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_event)).snippet("event").title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"), markerLoc.get("longitude")));
                             mMap.addMarker(markerOptions);
                         }
                     } catch (ParseException e) {
@@ -338,6 +340,35 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
+
+        mFirebaseDatabase = mFirebaseInstance.getReference("users").child(userID).child("favourites");
+
+        mFirebaseDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+
+                    HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
+                    HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
+
+
+
+                    MarkerOptions markerOptions = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_star)).snippet("favorite").title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"), markerLoc.get("longitude")));
+                    mMap.addMarker(markerOptions);
+
+
+
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
 
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
