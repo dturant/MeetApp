@@ -18,8 +18,19 @@ public class Settings extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
+        SharedPreferences sharedPref = getSharedPreferences("showLocation", MODE_PRIVATE);
+        String showLocation = sharedPref.getString("showLocation", "null");
+
 
         Switch switchButton = (Switch) findViewById(R.id.switch1);
+
+        if(!showLocation.equals("null")){
+            switchButton.setChecked(true);
+        }else{
+            switchButton.setChecked(false);
+        }
+
+
         switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {

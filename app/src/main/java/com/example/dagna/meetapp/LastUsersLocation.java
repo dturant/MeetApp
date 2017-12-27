@@ -39,7 +39,7 @@ public class LastUsersLocation extends AsyncTask<Context, Void, Void> {
 
 
 
-        if(!(loc==null) && !(shareLocation==null)){
+        if(!(loc==null) && !(shareLocation.equals("null"))){
             mFirebaseInstance.getReference("users").child(userID).child("location").setValue(loc);
         }
 
@@ -122,7 +122,7 @@ public class LastUsersLocation extends AsyncTask<Context, Void, Void> {
         userID = sharedPref.getString("userID", null);
 
         SharedPreferences sharedPref2 = contexts[0].getSharedPreferences("showLocation", MODE_PRIVATE);
-        shareLocation = sharedPref2.getString("showLocation", null);
+        shareLocation = sharedPref2.getString("showLocation", "null");
 
         try {
             callLocationsFunctions();

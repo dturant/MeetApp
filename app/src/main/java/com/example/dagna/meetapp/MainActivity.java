@@ -139,9 +139,12 @@ public class MainActivity extends AppCompatActivity
 
     public final void setFriendMarker(String friendID, LatLng location) {
 
+
+
         MarkerOptions markerOptions = new MarkerOptions().title(friendID).snippet("friend").position(location)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_friend_marker));
         mMap.addMarker(markerOptions);
+
 
     }
 
