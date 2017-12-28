@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -25,9 +26,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.dagna.meetapp.helpers.FilterDialog;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
@@ -47,6 +51,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -71,6 +77,9 @@ public class MainActivity extends AppCompatActivity
 
     List seletedItems = new ArrayList();
     private FusedLocationProviderClient mFusedLocationClient;
+
+    private StorageReference mFirebaseStorage;
+    private FirebaseStorage mFirebaseStorageInstance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +110,27 @@ public class MainActivity extends AppCompatActivity
         });
 
 
+
+
+        mFirebaseStorageInstance = FirebaseStorage.getInstance();
+        mFirebaseStorage = mFirebaseStorageInstance.getReference("users").child(userID);
+
+        mFirebaseStorage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+            @Override
+            public void onSuccess(Uri uri) {
+
+                ImageView profilePhoto = (ImageView) findViewById(R.id.profilePhoto);
+                Glide.with(MainActivity.this).using(new FirebaseImageLoader()).load(mFirebaseStorage).into(profilePhoto);
+
+
+
+            }
+
+        });
+
+
+
         mFirebaseInstance = FirebaseDatabase.getInstance();
         mFirebaseDatabase = mFirebaseInstance.getReference("users").child(userID);
 
@@ -109,10 +139,10 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                TextView tv = (TextView) findViewById(R.id.user_name);
+                TextView tv = (TextView) findViewById(R.id.name);
                 tv.setText(dataSnapshot.child("nome").getValue().toString());
 
-                TextView tvMail = (TextView) findViewById(R.id.user_email);
+                TextView tvMail = (TextView) findViewById(R.id.email);
                 tvMail.setText(dataSnapshot.child("email").getValue().toString());
 
             }

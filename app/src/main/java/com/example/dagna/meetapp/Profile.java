@@ -4,8 +4,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -19,15 +22,21 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.zxing.Result;
 
 import net.glxn.qrgen.android.QRCode;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -66,6 +75,12 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
     private ZXingScannerView mScannerView;
     private int PERMISSION_REQUEST_CAMERA = 1;
 
+
+    private StorageReference mFirebaseStorage;
+    private FirebaseStorage mFirebaseStorageInstance;
+    private Uri selectedImage = null;
+    public ImageView profilePhoto;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,6 +118,9 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
         }
 
+
+
+
         TabHost host = (TabHost)findViewById(R.id.profile_tab);
         host.setup();
 
@@ -120,6 +138,28 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
         spec3.setContent(R.id.tab3);
         spec3.setIndicator("Events");
         host.addTab(spec3);
+
+
+        profilePhoto = (ImageView) findViewById(R.id.profilePhoto);
+
+        mFirebaseStorageInstance = FirebaseStorage.getInstance();
+        mFirebaseStorage = mFirebaseStorageInstance.getReference("users").child(userID);
+
+
+
+        mFirebaseStorage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+            @Override
+            public void onSuccess(Uri uri) {
+
+
+                Glide.with(Profile.this).using(new FirebaseImageLoader()).load(mFirebaseStorage).into(profilePhoto);
+
+
+
+            }
+
+        });
 
 
 
@@ -289,8 +329,7 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
 
 
-    private boolean haveCameraPermission()
-    {
+    private boolean haveCameraPermission(){
         if (Build.VERSION.SDK_INT < 23)
             return true;
         return checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
@@ -361,11 +400,64 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
             }
         });
 
+    }
 
 
+    protected void addPhoto(View view){
+        Intent pickPhoto = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(pickPhoto , 1);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+        super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
+        switch(requestCode) {
+            case 0:
+                if(resultCode == RESULT_OK){
+
+                    try {
+                        selectedImage = imageReturnedIntent.getData();
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
+                        profilePhoto.setImageBitmap(bitmap);
 
 
+                        mFirebaseStorageInstance = FirebaseStorage.getInstance();
+                        mFirebaseStorage = mFirebaseStorageInstance.getReference("users");
 
+                        mFirebaseStorage.child(userID).delete();
+
+                        mFirebaseStorage.child(userID).putFile(selectedImage);
+
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+
+                }
+
+                break;
+            case 1:
+                if(resultCode == RESULT_OK){
+                    try {
+                        selectedImage = imageReturnedIntent.getData();
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
+                        profilePhoto.setImageBitmap(bitmap);
+
+
+                        mFirebaseStorageInstance = FirebaseStorage.getInstance();
+                        mFirebaseStorage = mFirebaseStorageInstance.getReference("users");
+
+                        mFirebaseStorage.child(userID).delete();
+                        mFirebaseStorage.child(userID).putFile(selectedImage);
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+        }
     }
 
 
