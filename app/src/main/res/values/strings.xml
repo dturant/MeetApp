@@ -48,10 +48,13 @@
     <string name="cancel">Cancel</string>
     <string name="filter_option_1">All events</string>
     <string name="filter_option_2">Your events</string>
+    <string name="filter_option_3">Friends\' events</string>
+
 
     <string-array name="filter_options">
         <item>@string/filter_option_1</item>
         <item>@string/filter_option_2</item>
+        <item>@string/filter_option_3</item>
     </string-array>
     <string name="title_activity_favorite_create">Create Favorite</string>
 

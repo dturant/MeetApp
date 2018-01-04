@@ -156,14 +156,13 @@
 
                 </LinearLayout>
 
-
                     <Button
                         android:id="@+id/buttonCancel"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/event_cancel"
                         android:background="@android:color/holo_red_dark"
-                        android:visibility="invisible"
+                        android:visibility="gone"
                         android:onClick="cancelEvent"
                         />
 
@@ -173,10 +172,10 @@
                         android:layout_height="wrap_content"
                         android:text="@string/event_go"
                         android:background="@android:color/holo_green_light"
-                        android:visibility="invisible"
+                        android:visibility="gone"
                         android:onClick="goEvent"
-                        />
 
+                        />
 
 
                 </LinearLayout>
