@@ -50,9 +50,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -393,6 +391,17 @@ public class MainActivity extends AppCompatActivity
                 builder.show();
             }
         });
+
+
+        SharedPreferences sharedPrefSatellite = getSharedPreferences("showSatelliteView", MODE_PRIVATE);
+        String showSatelliteView = sharedPrefSatellite.getString("showSatelliteView", "null");
+
+        if (!showSatelliteView.equals("null")) {
+            mMap.setMapType(mMap.MAP_TYPE_SATELLITE);
+        } else {
+            mMap.setMapType(mMap.MAP_TYPE_NORMAL);
+        }
+
 
         mFirebaseInstance = FirebaseDatabase.getInstance();
 

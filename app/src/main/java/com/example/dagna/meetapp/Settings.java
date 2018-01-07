@@ -22,16 +22,16 @@ public class Settings extends AppCompatActivity {
         String showLocation = sharedPref.getString("showLocation", "null");
 
 
-        Switch switchButton = (Switch) findViewById(R.id.switch1);
+        Switch switchButtonLocation = (Switch) findViewById(R.id.location);
 
         if(!showLocation.equals("null")){
-            switchButton.setChecked(true);
+            switchButtonLocation.setChecked(true);
         }else{
-            switchButton.setChecked(false);
+            switchButtonLocation.setChecked(false);
         }
 
 
-        switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        switchButtonLocation.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     SharedPreferences sharedPref = getSharedPreferences("showLocation", MODE_PRIVATE);
@@ -42,6 +42,36 @@ public class Settings extends AppCompatActivity {
                     SharedPreferences sharedPref = getSharedPreferences("showLocation", MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString("showLocation", null);
+                    editor.commit();
+                }
+            }
+        });
+
+
+        SharedPreferences sharedPrefSatellite = getSharedPreferences("showSatelliteView", MODE_PRIVATE);
+        String showSatelliteView = sharedPrefSatellite.getString("showSatelliteView", "null");
+
+
+        Switch switchButtonSatellite = (Switch) findViewById(R.id.view);
+
+        if(!showSatelliteView.equals("null")){
+            switchButtonSatellite.setChecked(true);
+        }else{
+            switchButtonSatellite.setChecked(false);
+        }
+
+
+        switchButtonSatellite.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    SharedPreferences sharedPref = getSharedPreferences("showSatelliteView", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("showSatelliteView", String.valueOf(true));
+                    editor.commit();
+                } else {
+                    SharedPreferences sharedPref = getSharedPreferences("showSatelliteView", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("showSatelliteView", null);
                     editor.commit();
                 }
             }
