@@ -11,6 +11,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -32,6 +33,9 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.dagna.meetapp.helpers.FilterDialog;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
@@ -45,6 +49,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -62,15 +68,21 @@ import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, FilterDialog.FilterDialogListener, LocationListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, FilterDialog.FilterDialogListener, LocationListener,
+        GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleMap mMap;
+    private GoogleApiClient mGoogleApiClient;
     public Location location = null;
     private int LOCATION_PERMISSION_REQUEST_CODE = 1;
     public final static String EXTRA_MESSAGE = "com.example.dagna.meetapp.MESSAGE";
 
     private DatabaseReference mFirebaseDatabase;
     private FirebaseDatabase mFirebaseInstance;
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseUser mFirebaseUser;
+    private StorageReference mFirebaseStorage;
+    private FirebaseStorage mFirebaseStorageInstance;
     private int REQUEST_CODE = 1;
 
     public String userID;
@@ -78,8 +90,7 @@ public class MainActivity extends AppCompatActivity
     List seletedItems = new ArrayList();
     private FusedLocationProviderClient mFusedLocationClient;
 
-    private StorageReference mFirebaseStorage;
-    private FirebaseStorage mFirebaseStorageInstance;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +98,14 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API)
+                .build();
 
         SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
         userID = sharedPref.getString("userID", null);
@@ -600,8 +619,12 @@ public class MainActivity extends AppCompatActivity
             editor.putString("userID", null);
             editor.commit();
 
-            Intent intent = new Intent(this, Login.class);
-            startActivity(intent);
+//            Intent intent = new Intent(this, Login.class);
+//            startActivity(intent);
+
+            mFirebaseAuth.signOut();
+            startActivity(new Intent(this, Login.class));
+            return true;
 
         }
 
@@ -626,4 +649,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
 }
