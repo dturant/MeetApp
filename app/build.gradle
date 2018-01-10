@@ -1,6 +1,20 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            keyAlias 'MeetApp'
+            keyPassword 'meetappKEY'
+            storeFile file('../androidKeys.jks')
+            storePassword 'meetappKEY'
+        }
+        debug {
+            keyAlias 'MeetApp'
+            keyPassword 'meetappKEY'
+            storeFile file('../androidKeys.jks')
+            storePassword 'meetappKEY'
+        }
+    }
     compileSdkVersion 24
     buildToolsVersion '25.0.0'
     defaultConfig {
@@ -23,7 +37,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
