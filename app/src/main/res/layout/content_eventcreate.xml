@@ -103,29 +103,51 @@
                 />
 
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom  = "@dimen/activity_vertical_margin"
-            >
+            android:orientation="horizontal">
+
             <ImageView
-                android:paddingRight = "@dimen/activity_horizontal_margin"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_mode_edit_black_24dp"/>
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:src="@drawable/ic_mode_edit_black_24dp" />
+
             <EditText
+                android:id="@+id/event_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/event_description"
+                android:gravity="top|left"
+                android:hint="@string/event_description"
                 android:inputType="textMultiLine"
                 android:lines="4"
-                android:minLines="1"
-                android:gravity="top|left"
                 android:maxLines="20"
+                android:minLines="1"
                 android:scrollbars="vertical"
-                android:hint="@string/event_description"
-                android:textSize="20dp"/>
+                android:textSize="20dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:src="@drawable/ic_list_black_24dp" />
+
+            <Spinner
+                android:id="@+id/event_privacy"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+
+                />
+
         </LinearLayout>
 
         <Space

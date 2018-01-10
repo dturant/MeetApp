@@ -4,17 +4,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -26,7 +24,10 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -80,9 +81,11 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
     private StorageReference mFirebaseStorage;
     private FirebaseStorage mFirebaseStorageInstance;
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseUser mFirebaseUser;
     private Uri selectedImage = null;
     public ImageView profilePhoto;
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +97,9 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
         Intent intent = getIntent();
         userID = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -175,7 +181,15 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
             }
 
-        });
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Glide.with(Profile.this)
+                        .load(mFirebaseUser.getPhotoUrl())
+                        .into(profilePhoto);
+
+            }
+        });;
 
 
 
@@ -230,8 +244,18 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
                     try {
                         Date markerDay = new SimpleDateFormat("dd/MM/yyyy").parse((String) markerHashMap.get("date"));
+                        ArrayList<String> invited = (ArrayList<String>) markerHashMap.get("users");
 
-                        if( new Date().before(markerDay) && userID.equals((String) markerHashMap.get("owner"))){
+
+                        String privacy;
+                        try{
+                            privacy = markerHashMap.get("privacy").toString();
+                        }catch (Exception e){
+                            privacy = "";
+                        }
+
+                        if ((new Date().before(markerDay) || new Date().equals(markerDay)) && (privacy.equals("Public") || (privacy.equals("Private") && (markerHashMap.get("owner").toString().equals(userID) || invited.contains(userID)) ) ||
+                                (privacy.equals("Friends") && (markerHashMap.get("owner").toString().equals(userID) || invited.contains(userID) || listFriendsIDs.contains(markerHashMap.get("owner").toString())) ) ) && markerHashMap.get("owner").toString().equals(userID) ) {
 
                             String markerTitle = (String) markerHashMap.get("title");
                             listItems.add(markerTitle);
@@ -289,7 +313,7 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
 
 
-                    mFirebaseInstance.getReference("users").child((String) snapshot.getValue()).child("nome").addListenerForSingleValueEvent(new ValueEventListener() {
+                    mFirebaseInstance.getReference("users").child((String) snapshot.getKey()).child("nome").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             listFriends.add((String) dataSnapshot.getValue());
@@ -301,7 +325,7 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
                         }
                     });
 
-                    listFriendsIDs.add((String) snapshot.getValue());
+                    listFriendsIDs.add((String) snapshot.getKey());
 
 
                 }
@@ -392,9 +416,9 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
                 if (dataSnapshot.hasChild("nome")) {
                     mScannerView.stopCamera();
 
-                    mFirebaseInstance.getReference("users").child(userID).child("friends").child(String.valueOf(listFriends.size())).setValue(userFriendID);
+                    mFirebaseInstance.getReference("users").child(userID).child("friends").child(userFriendID).setValue(userFriendID);
 
-                    mFirebaseInstance.getReference("users").child(userFriendID).child("friends").child(String.valueOf(dataSnapshot.child("friends").getChildrenCount())).setValue(userID);
+                    mFirebaseInstance.getReference("users").child(userFriendID).child("friends").child(userID).setValue(userID);
 
                     Toast.makeText(getApplicationContext(),
                             "Friend added!", Toast.LENGTH_SHORT).show();

@@ -157,7 +157,7 @@
 
         <service
             android:name=".MyFirebaseMessagingService"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -165,7 +165,7 @@
 
         <service
             android:name=".MyFirebaseInstanceIdService"
-            android:exported="true">
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
