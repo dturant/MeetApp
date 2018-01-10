@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -85,10 +87,10 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+      //  Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+      //  setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+      //  getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
         userID = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
@@ -139,8 +141,22 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
         spec3.setIndicator("Events");
         host.addTab(spec3);
 
+        for(int i=0;i<host.getTabWidget().getChildCount();i++)
+        {
+            TextView tv = (TextView) host.getTabWidget().getChildAt(i).findViewById(android.R.id.title);
+            tv.setTextColor(getResources().getColor(R.color.colorText, null));
+        }
+
 
         profilePhoto = (ImageView) findViewById(R.id.profilePhoto);
+
+        profilePhoto.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent pickPhoto = new Intent(Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(pickPhoto , 1);
+            }
+        });
 
         mFirebaseStorageInstance = FirebaseStorage.getInstance();
         mFirebaseStorage = mFirebaseStorageInstance.getReference("users").child(userID);
@@ -182,7 +198,7 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
                 email.setText(dataSnapshot.child("email").getValue().toString());
 
                 if(userID.equals(userIDLogged)) {
-                    Bitmap myBitmap = QRCode.from(userID).bitmap();
+                    Bitmap myBitmap = QRCode.from(userID).withColor(getResources().getColor(R.color.colorText), getResources().getColor(R.color.background)).bitmap();
                     ImageView myImage = (ImageView) findViewById(R.id.QRCode);
                     myImage.setImageBitmap(myBitmap);
                 }
@@ -403,11 +419,7 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
     }
 
 
-    protected void addPhoto(View view){
-        Intent pickPhoto = new Intent(Intent.ACTION_PICK,
-                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(pickPhoto , 1);
-    }
+
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {

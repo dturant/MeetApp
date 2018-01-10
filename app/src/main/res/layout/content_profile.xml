@@ -16,7 +16,7 @@
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="167dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/side_nav_bar"
         android:gravity="bottom"
         android:orientation="horizontal">
@@ -24,33 +24,37 @@
 
         <ImageView
             android:id="@+id/profilePhoto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="addPhoto" />
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:src="@drawable/abc"
+            android:scaleType="centerCrop"
+             />
 
         <TextView
             android:id="@+id/name"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="@dimen/nav_header_vertical_spacing"
+            android:textStyle="bold"
+            android:textSize="20dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginBottom="39dp"
+            android:layout_marginBottom="10dp"
             android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"/>
+            android:layout_marginRight="16dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/profilePhoto"
+            android:textColor="@color/colorText"/>
 
         <TextView
             android:id="@+id/email"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginBottom="11dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"/>
+            android:layout_marginBottom="20dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/name"
+            android:textColor="@color/colorText"/>
 
     </RelativeLayout>
 
@@ -62,20 +66,23 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:textColor="@color/colorText">
 
             <TabWidget
                 android:id="@android:id/tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/colorPrimaryDark">
+
+                >
 
             </TabWidget>
 
             <FrameLayout
                 android:id="@android:id/tabcontent"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                >
 
                 <LinearLayout
                     android:id="@+id/tab1"
