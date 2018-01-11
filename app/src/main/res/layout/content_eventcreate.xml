@@ -139,7 +139,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:paddingRight="@dimen/activity_horizontal_margin"
-                android:src="@drawable/ic_list_black_24dp" />
+                android:src="@drawable/ic_people_black_24dp" />
 
             <Spinner
                 android:id="@+id/event_privacy"

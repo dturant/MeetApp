@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <group android:checkableBehavior="single" android:id="@+id/group1">
         <item
             android:id="@+id/nav_notifications"
             android:icon="@drawable/ic_notifications_black_24dp"
@@ -21,9 +21,8 @@
 
     </group>
 
-    <item>
-        <menu
-            android:layout_gravity="bottom">
+
+    <group android:checkableBehavior="single" android:id="@+id/group2">
             <item
                 android:id="@+id/nav_settings"
                 android:icon="@drawable/ic_settings_black_24dp"
@@ -32,7 +31,8 @@
                 android:id="@+id/nav_logout"
                 android:icon="@drawable/ic_power_settings_new_black_24dp"
                 android:title="Logout" />
-        </menu>
-    </item>
+    </group>
+
+
 
 </menu>
