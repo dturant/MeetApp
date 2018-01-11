@@ -36,7 +36,7 @@ public class EventCreate extends AppCompatActivity {
     public Intent intent;
     public ImageView eventPhoto;
     public EditText eventDate, eventTime, eventName,eventDescription;
-    Spinner eventCategorySpinner;
+    Spinner eventCategorySpinner, eventPrivacySpinner;
     private DatabaseReference mFirebaseDatabase;
     private FirebaseDatabase mFirebaseInstance;
     private StorageReference mFirebaseStorage;
@@ -64,6 +64,11 @@ public class EventCreate extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         eventCategorySpinner.setAdapter(adapter);
 
+        eventPrivacySpinner = (Spinner) findViewById(R.id.event_privacy);
+        ArrayAdapter<Privacy> adapterPrivacy = new ArrayAdapter<Privacy>(this, R.layout.spinner_item, Privacy.values());
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        eventPrivacySpinner.setAdapter(adapterPrivacy);
+
         intent = getIntent();
         String[] locationString = intent.getStringExtra(MainActivity.EXTRA_MESSAGE).split(",");
 
@@ -84,6 +89,7 @@ public class EventCreate extends AppCompatActivity {
         String owner = sharedPref.getString("userID", null);
 
         String category = Category.valueOf(eventCategorySpinner.getSelectedItem().toString()).toString();
+        String privacy = Privacy.valueOf(eventPrivacySpinner.getSelectedItem().toString()).toString();
 
 
 
@@ -103,6 +109,7 @@ public class EventCreate extends AppCompatActivity {
         mFirebaseDatabase.child(markerID).child("time").setValue(time);
         mFirebaseDatabase.child(markerID).child("description").setValue(description);
         mFirebaseDatabase.child(markerID).child("category").setValue(category);
+        mFirebaseDatabase.child(markerID).child("privacy").setValue(privacy);
         mFirebaseDatabase.child(markerID).child("owner").setValue(owner);
         //mFirebaseInstance.getReference("users").child(userID).child("friends").child(String.valueOf(listFriends.size())).setValue(result.getText());
         mFirebaseDatabase.child(markerID).child("users").child("0").setValue(owner);

@@ -15,8 +15,8 @@
         android:layout_marginLeft="16dp"
         android:layout_marginBottom="5dp"
         android:onClick="onHeaderPress"
-        android:scaleType="centerCrop"
-        android:src="@drawable/abc"/>
+        android:scaleType="centerCrop"/>
+        <!--android:src="@drawable/abc"/>-->
 
     <TextView
         android:id="@+id/name"

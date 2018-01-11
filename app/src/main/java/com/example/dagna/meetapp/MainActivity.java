@@ -55,6 +55,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -100,6 +101,9 @@ public class MainActivity extends AppCompatActivity
     List<Integer> checkedItems;
     EditText filterDate;
     String pickedDate;
+
+    ArrayList<String> listFriendsIDs=new ArrayList<String>();
+
 
 
     @Override
@@ -200,6 +204,25 @@ public class MainActivity extends AppCompatActivity
 
         });
 
+        mFirebaseInstance = FirebaseDatabase.getInstance();
+        mFirebaseInstance.getReference("users").child(userID).child("friends").addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+
+                    listFriendsIDs.add(snapshot.getValue().toString());
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
 
 
@@ -220,11 +243,20 @@ public class MainActivity extends AppCompatActivity
 
             }
 
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                ImageView profilePhoto = (ImageView) findViewById(R.id.profilePhoto);
+                Glide.with(MainActivity.this)
+                        .load(mFirebaseUser.getPhotoUrl())
+                        .into(profilePhoto);
+
+            }
         });
 
 
 
-        mFirebaseInstance = FirebaseDatabase.getInstance();
+
         mFirebaseDatabase = mFirebaseInstance.getReference("users").child(userID);
 
 
@@ -248,6 +280,8 @@ public class MainActivity extends AppCompatActivity
 
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+
 
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -397,16 +431,16 @@ public class MainActivity extends AppCompatActivity
 
 
     private void getResultsFromFirebase(DataSnapshot snapshot) {
-        Log.d("LOL", "LOL");
+
         if (snapshot.exists()) {
-            Log.d("LOL2", "LOL");
+
            // for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                Log.d("aaa", "snapshot value " + snapshot.getValue() + " " + snapshot.getValue());
+
                 HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
                 try {
                     Date markerDay = new SimpleDateFormat("dd/MM/yyyy").parse(markerHashMap.get("date").toString());
 
-                    if (new Date().before(markerDay)) {
+                    if (new Date().before(markerDay) ) {
                         HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
 
                         MarkerOptions markerOptions = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_event)).snippet("event").title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"), markerLoc.get("longitude")));
@@ -521,12 +555,23 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            Log.d("aaa", "costam " + snapshot.getValue());
+
                     HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
                     try {
                         Date markerDay = new SimpleDateFormat("dd/MM/yyyy").parse(markerHashMap.get("date").toString());
 
-                        if (new Date().before(markerDay)) {
+                        ArrayList<String> invited = (ArrayList<String>) markerHashMap.get("users");
+
+
+                        String privacy;
+                        try{
+                            privacy = markerHashMap.get("privacy").toString();
+                        }catch (Exception e){
+                            privacy = "";
+                        }
+
+                        if ((new Date().before(markerDay) || new Date().equals(markerDay)) && (privacy.equals("Public") || (privacy.equals("Private") && (markerHashMap.get("owner").toString().equals(userID) || invited.contains(userID)) ) ||
+                                (privacy.equals("Friends") && (markerHashMap.get("owner").toString().equals(userID) || invited.contains(userID) || listFriendsIDs.contains(markerHashMap.get("owner").toString())) ) )  ) {
                             HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
 
                             MarkerOptions markerOptions = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_event)).snippet("event").title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"), markerLoc.get("longitude")));

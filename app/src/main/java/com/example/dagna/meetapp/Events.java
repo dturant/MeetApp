@@ -2,12 +2,12 @@ package com.example.dagna.meetapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -29,7 +29,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
 public class Events extends AppCompatActivity {
 
@@ -49,6 +48,11 @@ public class Events extends AppCompatActivity {
     ArrayList<EventObject> events;
     EventAdapter adapter;
     ListView list;
+
+    public String userID;
+
+    ArrayList<String> listFriendsIDs=new ArrayList<String>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,12 +63,32 @@ public class Events extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         context=this;
 
+        SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
+        userID = sharedPref.getString("userID", null);
 
         mFirebaseStorageInstance = FirebaseStorage.getInstance();
 
         mFirebaseInstance = FirebaseDatabase.getInstance();
         mFirebaseDatabase = mFirebaseInstance.getReference("markers");
 
+        mFirebaseInstance.getReference("users").child(userID).child("friends").addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
+
+                    listFriendsIDs.add(snapshot.getValue().toString());
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
 
         events = new ArrayList<>();
@@ -87,8 +111,18 @@ public class Events extends AppCompatActivity {
 
                     try {
                         Date markerDay = new SimpleDateFormat("dd/MM/yyyy").parse((String) markerHashMap.get("date"));
+                        ArrayList<String> invited = (ArrayList<String>) markerHashMap.get("users");
 
-                        if( new Date().before(markerDay) || new Date().equals(markerDay)){
+
+                        String privacy;
+                        try{
+                            privacy = markerHashMap.get("privacy").toString();
+                        }catch (Exception e){
+                            privacy = "";
+                        }
+
+                        if ((new Date().before(markerDay) || new Date().equals(markerDay)) && (privacy.equals("Public") || (privacy.equals("Private") && (markerHashMap.get("owner").toString().equals(userID) || invited.contains(userID)) ) ||
+                                (privacy.equals("Friends") && (markerHashMap.get("owner").toString().equals(userID) || invited.contains(userID) || listFriendsIDs.contains(markerHashMap.get("owner").toString())) ) )  ) {
 
                             String markerTitle = (String) markerHashMap.get("title");
                             listItems.add(markerTitle);
