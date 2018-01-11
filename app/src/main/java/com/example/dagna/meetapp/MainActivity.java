@@ -1,6 +1,8 @@
 package com.example.dagna.meetapp;
 
 import android.Manifest;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,9 +26,14 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -63,12 +70,13 @@ import com.google.firebase.storage.StorageReference;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, FilterDialog.FilterDialogListener, LocationListener,
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, LocationListener,
         GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleMap mMap;
@@ -86,10 +94,12 @@ public class MainActivity extends AppCompatActivity
     private int REQUEST_CODE = 1;
 
     public String userID;
-
+    private Context context;
     List seletedItems = new ArrayList();
     private FusedLocationProviderClient mFusedLocationClient;
-
+    List<Integer> checkedItems;
+    EditText filterDate;
+    String pickedDate;
 
 
     @Override
@@ -98,7 +108,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        context = this;
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
 
@@ -119,14 +129,78 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        checkedItems = new ArrayList<>();
+        //filterDate = (EditText) findViewById(R.id.filter_date);
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FilterDialog filterDialog = new FilterDialog();
-                filterDialog.show(getSupportFragmentManager(), "FilterDialogFragment");
+
+                LayoutInflater li = LayoutInflater.from(context);
+                View dialogView = li.inflate(R.layout.dialog_filter, null);
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                        context);
+                // set title
+                alertDialogBuilder.setTitle("Filter");
+                // set custom dialog icon
+                //alertDialogBuilder.setIcon(R.drawable.ic_launcher);
+                // set custom_dialog.xml to alertdialog builder
+                alertDialogBuilder.setView(dialogView);
+                final CheckBox allEvents = (CheckBox) dialogView.findViewById(R.id.all_events);
+                final CheckBox yourEvents = (CheckBox) dialogView.findViewById(R.id.your_events);
+                final CheckBox friendsEvents = (CheckBox)dialogView.findViewById(R.id.friends_events);
+                final CheckBox byDate = (CheckBox)dialogView.findViewById(R.id.by_date);
+                filterDate = (EditText) dialogView.findViewById(R.id.filter_date);
+                filterDate.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        pickDate();
+                    }
+                });
+                // set dialog message
+                alertDialogBuilder
+                        .setCancelable(false)
+                        .setPositiveButton("OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int id) {
+
+                                        if(allEvents.isChecked()) {
+                                            checkedItems.add(0);
+                                        }
+                                        if(yourEvents.isChecked()){
+                                            checkedItems.add(1);
+                                        }
+                                        if(friendsEvents.isChecked()){
+                                            checkedItems.add(2);
+                                        }
+                                        if(byDate.isChecked() && !filterDate.equals(null) ){
+                                            checkedItems.add(3);
+                                            pickedDate = filterDate.getText().toString();
+                                        }
+
+                                        filter();
+                                    }
+                                })
+                        .setNegativeButton("Cancel",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                // show it
+                alertDialog.show();
             }
+
+
+
         });
+
+
 
 
 
@@ -205,14 +279,12 @@ public class MainActivity extends AppCompatActivity
         return null;
     }
 
-    @Override
-    public void onDialogPositiveClick(DialogFragment dialog) {
-        seletedItems = FilterDialog.getSeletedItems();
-        Log.d("selected items", seletedItems.toString());
-        if (seletedItems.size() > 0) {
+    private void filter(){
+        Log.d("filter", "filter " + checkedItems.size() + " " + pickedDate);
+        if (checkedItems.size() > 0) {
             mMap.clear();
 
-            if (seletedItems.contains(1)) { //your events
+            if (checkedItems.contains(1)) { //your events
                 DatabaseReference ref = mFirebaseInstance.getReference("markers");
                 //Query query = ref.orderByChild("owner").equalTo(userID);
                 //Log.d("LOL1", "LOL");
@@ -236,7 +308,7 @@ public class MainActivity extends AppCompatActivity
                 });
 
             }
-            if (seletedItems.contains(0)) { //all
+            if (checkedItems.contains(0)) { //all
                 DatabaseReference ref = mFirebaseInstance.getReference("markers");
                 ref.addListenerForSingleValueEvent(new ValueEventListener() {
 
@@ -255,7 +327,7 @@ public class MainActivity extends AppCompatActivity
 
             }
 
-            if (seletedItems.contains(2)) { //friends' events
+            if (checkedItems.contains(2)) { //friends' events
                 //get all friends
                 DatabaseReference mdb = mFirebaseInstance.getReference("users").child(userID).child("friends");
                 mdb.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -295,10 +367,34 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
             }
+
+            if (checkedItems.contains(3)) { //by date
+                DatabaseReference ref = mFirebaseInstance.getReference("markers");
+                //Query query = ref.orderByChild("owner").equalTo(userID);
+                //Log.d("LOL1", "LOL");
+                ref.orderByChild("date").equalTo(pickedDate).addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
+                        Log.d("New data", "new data: " + dataSnapshot.getKey());
+                        getResultsFromFirebase(dataSnapshot);
+                    }
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String prevChildKey) {}
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {}
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String prevChildKey) {}
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {}
+                });
+
+            }
         }
-
-
     }
+
 
     private void getResultsFromFirebase(DataSnapshot snapshot) {
         Log.d("LOL", "LOL");
@@ -321,11 +417,6 @@ public class MainActivity extends AppCompatActivity
                 }
           //  }
         }
-    }
-
-    @Override
-    public void onDialogNegativeClick(DialogFragment dialog) {
-
     }
 
     @Override
@@ -652,5 +743,22 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
+    }
+
+    protected void pickDate(){
+        Calendar mcurrentDate = Calendar.getInstance();
+        int mYear = mcurrentDate.get(Calendar.YEAR);
+        int mMonth = mcurrentDate.get(Calendar.MONTH);
+        int mDay = mcurrentDate.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog mDatePicker;
+        mDatePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+            public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
+                selectedmonth = selectedmonth + 1;
+                filterDate.setText("" + selectedday + "/" + selectedmonth + "/" + selectedyear);
+            }
+        }, mYear, mMonth, mDay);
+        mDatePicker.setTitle("Select Date");
+        mDatePicker.show();
     }
 }
