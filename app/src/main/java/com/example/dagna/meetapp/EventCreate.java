@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -113,11 +114,12 @@ public class EventCreate extends AppCompatActivity {
         mFirebaseDatabase.child(markerID).child("owner").setValue(owner);
         //mFirebaseInstance.getReference("users").child(userID).child("friends").child(String.valueOf(listFriends.size())).setValue(result.getText());
         mFirebaseDatabase.child(markerID).child("users").child("0").setValue(owner);
+        mFirebaseStorage.child(markerID).putFile(selectedImage);
 
-            mFirebaseStorage.child(markerID).putFile(selectedImage);
-
-
-
+        DatabaseReference notifications = mFirebaseInstance.getReference("notifications").push();
+        notifications.child("from_user").setValue(owner);
+        notifications.child("user_fcm").setValue(FirebaseInstanceId.getInstance().getToken());
+        notifications.child("message").setValue("A friend added an event near you!");
 
 
         MarkerOptions marker = new MarkerOptions()
@@ -206,8 +208,6 @@ public class EventCreate extends AppCompatActivity {
         mTimePicker.setTitle("Select Time");
         mTimePicker.show();
     }
-
-
 
 
 }
