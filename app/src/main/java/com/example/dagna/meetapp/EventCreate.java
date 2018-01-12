@@ -119,25 +119,28 @@ public class EventCreate extends AppCompatActivity {
         mFirebaseStorage.child(markerID).putFile(selectedImage);
 
 
+        if(!privacy.equals("Private")){
+            mFirebaseInstance = FirebaseDatabase.getInstance();
+            mFirebaseInstance.getReference("users").child(owner).child("nome").addListenerForSingleValueEvent(new ValueEventListener() {
 
-        mFirebaseInstance = FirebaseDatabase.getInstance();
-        mFirebaseInstance.getReference("users").child(owner).child("nome").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
 
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+                    DatabaseReference notifications = mFirebaseInstance.getReference("notifications").push();
+                    notifications.child("user_name").setValue(dataSnapshot.getValue());
+                    notifications.child("user_id").setValue(owner);
+                    notifications.child("event").setValue(markerID);
 
-                DatabaseReference notifications = mFirebaseInstance.getReference("notifications").push();
-                notifications.child("user_name").setValue(dataSnapshot.getValue());
-                notifications.child("user_id").setValue(owner);
-                notifications.child("event").setValue(markerID);
+                }
 
-            }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        }
 
-            }
-        });
+
 
 
 
