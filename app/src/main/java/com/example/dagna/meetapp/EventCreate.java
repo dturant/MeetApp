@@ -22,9 +22,11 @@ import android.widget.TimePicker;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -87,7 +89,7 @@ public class EventCreate extends AppCompatActivity {
 
 
         SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
-        String owner = sharedPref.getString("userID", null);
+        final String owner = sharedPref.getString("userID", null);
 
         String category = Category.valueOf(eventCategorySpinner.getSelectedItem().toString()).toString();
         String privacy = Privacy.valueOf(eventPrivacySpinner.getSelectedItem().toString()).toString();
@@ -102,7 +104,7 @@ public class EventCreate extends AppCompatActivity {
         mFirebaseStorage = mFirebaseStorageInstance.getReference("markers");
 
 
-        String  markerID = mFirebaseDatabase.push().getKey();
+        final String  markerID = mFirebaseDatabase.push().getKey();
 
         mFirebaseDatabase.child(markerID).child("title").setValue(name);
         mFirebaseDatabase.child(markerID).child("location").setValue(eventLocation);
@@ -116,10 +118,28 @@ public class EventCreate extends AppCompatActivity {
         mFirebaseDatabase.child(markerID).child("users").child("0").setValue(owner);
         mFirebaseStorage.child(markerID).putFile(selectedImage);
 
-        DatabaseReference notifications = mFirebaseInstance.getReference("notifications").push();
-        notifications.child("from_user").setValue(owner);
-        notifications.child("user_fcm").setValue(FirebaseInstanceId.getInstance().getToken());
-        notifications.child("message").setValue("A friend added an event near you!");
+
+
+        mFirebaseInstance = FirebaseDatabase.getInstance();
+        mFirebaseInstance.getReference("users").child(owner).child("nome").addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                DatabaseReference notifications = mFirebaseInstance.getReference("notifications").push();
+                notifications.child("user_name").setValue(dataSnapshot.getValue());
+                notifications.child("user_id").setValue(owner);
+                notifications.child("event").setValue(markerID);
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
 
 
         MarkerOptions marker = new MarkerOptions()
