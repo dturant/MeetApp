@@ -754,9 +754,10 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, Favorites.class);
             startActivity(intent);
 
-        } else if (id == R.id.nav_groups) {
-            Intent intent = new Intent(this, Groups.class);
-            startActivity(intent);
+            //CLOSED FOR NOW
+//        } else if (id == R.id.nav_groups) {
+//            Intent intent = new Intent(this, Groups.class);
+//            startActivity(intent);
 
         } else if (id == R.id.nav_settings) {
 

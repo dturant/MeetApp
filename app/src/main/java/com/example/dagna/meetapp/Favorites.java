@@ -151,4 +151,13 @@ public class Favorites extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+
+        Intent it = new Intent(Favorites.this, MainActivity.class);
+        startActivity(it);
+
+        finish();
+    }
+
 }

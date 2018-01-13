@@ -90,10 +90,11 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-      //  Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-      //  setSupportActionBar(toolbar);
 
-      //  getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
+
+//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
         userID = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
@@ -498,6 +499,15 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        Intent it = new Intent(Profile.this, MainActivity.class);
+        startActivity(it);
+
+        finish();
     }
 
 

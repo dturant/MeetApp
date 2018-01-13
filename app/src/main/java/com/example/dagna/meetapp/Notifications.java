@@ -103,4 +103,14 @@ public class Notifications extends AppCompatActivity {
 
     }
 
+
+    @Override
+    public void onBackPressed() {
+
+        Intent it = new Intent(Notifications.this, MainActivity.class);
+        startActivity(it);
+
+        finish();
+    }
+
 }

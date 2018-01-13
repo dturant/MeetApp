@@ -196,4 +196,13 @@ public class Events extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+
+        Intent it = new Intent(Events.this, MainActivity.class);
+        startActivity(it);
+
+        finish();
+    }
+
 }

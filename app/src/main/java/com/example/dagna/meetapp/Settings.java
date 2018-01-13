@@ -1,5 +1,6 @@
 package com.example.dagna.meetapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -78,5 +79,14 @@ public class Settings extends AppCompatActivity {
         });
 
 
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        Intent it = new Intent(Settings.this, MainActivity.class);
+        startActivity(it);
+
+        finish();
     }
 }
