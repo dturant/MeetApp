@@ -26,7 +26,6 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 public class Login extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener, View.OnClickListener {
@@ -35,7 +34,6 @@ public class Login extends AppCompatActivity implements
     private FirebaseDatabase mFirebaseInstance;
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
-    private StorageReference mFirebaseStorage;
     private FirebaseStorage mFirebaseStorageInstance;
 
     private GoogleApiClient mGoogleApiClient;
@@ -49,21 +47,7 @@ public class Login extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-//        EditText username = (EditText) findViewById(R.id.editText1);
-//        EditText password = (EditText) findViewById(R.id.editText2);
 
-//        SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
-//
-//        String userID = sharedPref.getString("userID", null);
-//
-//        if(userID!=null){
-//            Toast.makeText(getApplicationContext(),
-//                    "Loading...", Toast.LENGTH_SHORT).show();
-//            Intent intent = new Intent(this, MainActivity.class);
-//            startActivity(intent);
-//        }
-
-        // Initialize Firebase Auth
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
@@ -108,82 +92,6 @@ public class Login extends AppCompatActivity implements
 
     }
 
-//    public void login(View view) {
-//        final EditText password = (EditText) findViewById(R.id.editText2);
-//        final EditText username = (EditText) findViewById(R.id.editText1);
-//        TextView textRegister = (TextView)findViewById(R.id.textView3);
-//
-//        final String strPw = password.getText().toString();
-//        final String strUser = username.getText().toString();
-//
-//
-//        mFirebaseInstance = FirebaseDatabase.getInstance();
-//        mFirebaseDatabase = mFirebaseInstance.getReference("users");
-//
-//
-//        mFirebaseDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-//
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//
-//                for(DataSnapshot snapshot : dataSnapshot.getChildren()){
-//
-//                    Map<String,String> user = (Map<String,String>) snapshot.getValue();
-//
-//                    String nome =user.get("nome");
-//
-//                    if(user.get("nome").equals(strUser) && user.get("password").equals(strPw)) {
-////        if(strUser.equals("admin") && strPw.equals("admin")){
-//
-//                        SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
-//                        SharedPreferences.Editor editor = sharedPref.edit();
-//                        editor.putString("userID", snapshot.getKey());
-//                        editor.commit();
-//
-//
-//                        Toast.makeText(getApplicationContext(),
-//                                "Loading...", Toast.LENGTH_SHORT).show();
-//                        Intent intent = new Intent(Login.this, MainActivity.class);
-//                        startActivity(intent);
-//                        break;
-//
-//                    }else{
-//                        if (TextUtils.isEmpty(strUser)) {
-//                            username.setError("Your Name can't be empty");
-//                            return;
-//                        } else if (TextUtils.isEmpty(strPw)) {
-//                            password.setError("Your Password can't be empty");
-//                            return;
-//                        } else {
-//                            Toast.makeText(getApplicationContext(), "Username and Password does not match",
-//                                    Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//                }
-//
-//
-//
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
-//
-//
-//
-//
-//
-//
-//    }
-//
-//    public void register(View view) {
-//        Intent intent = new Intent(this, Register.class);
-//        startActivity(intent);
-//    }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -212,6 +120,8 @@ public class Login extends AppCompatActivity implements
             } else {
                 // Google Sign-In failed
                 Log.e(TAG, "Google Sign-In failed.");
+                Toast.makeText(Login.this, "Authentication failed.",
+                        Toast.LENGTH_SHORT).show();
             }
         }
     }
