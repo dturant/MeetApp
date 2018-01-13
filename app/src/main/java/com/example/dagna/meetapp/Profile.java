@@ -120,22 +120,24 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
         SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
         userIDLogged = sharedPref.getString("userID", null);
 
-        if(!userID.equals(userIDLogged)){
-
-            fab.setVisibility(View.INVISIBLE);
-
-        }
-
-
-
 
         TabHost host = (TabHost)findViewById(R.id.profile_tab);
         host.setup();
 
-        TabHost.TabSpec spec1 = host.newTabSpec("Info");
-        spec1.setContent(R.id.tab1);
-        spec1.setIndicator("Info");
-        host.addTab(spec1);
+        if(!userID.equals(userIDLogged)){
+
+            fab.setVisibility(View.INVISIBLE);
+
+        }else{
+
+
+            TabHost.TabSpec spec1 = host.newTabSpec("Info");
+            spec1.setContent(R.id.tab1);
+            spec1.setIndicator("Info");
+            host.addTab(spec1);
+
+        }
+
 
         TabHost.TabSpec spec2 = host.newTabSpec("Friends");
         spec2.setContent(R.id.tab2);
@@ -184,10 +186,12 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Glide.with(Profile.this)
-                        .load(mFirebaseUser.getPhotoUrl())
-                        .into(profilePhoto);
 
+                if(userID.equals(userIDLogged)) {
+                    Glide.with(Profile.this)
+                            .load(mFirebaseUser.getPhotoUrl())
+                            .into(profilePhoto);
+                }
             }
         });;
 
