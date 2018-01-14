@@ -122,23 +122,13 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
         userIDLogged = sharedPref.getString("userID", null);
 
 
-        TabHost host = (TabHost)findViewById(R.id.profile_tab);
+        final TabHost host = (TabHost)findViewById(R.id.profile_tab);
         host.setup();
 
-        if(!userID.equals(userIDLogged)){
-
-            fab.setVisibility(View.INVISIBLE);
-
-        }else{
-
-
-            TabHost.TabSpec spec1 = host.newTabSpec("Info");
-            spec1.setContent(R.id.tab1);
-            spec1.setIndicator("Info");
-            host.addTab(spec1);
-
-        }
-
+        TabHost.TabSpec spec1 = host.newTabSpec("Info");
+        spec1.setContent(R.id.tab1);
+        spec1.setIndicator("Info");
+        host.addTab(spec1);
 
         TabHost.TabSpec spec2 = host.newTabSpec("Friends");
         spec2.setContent(R.id.tab2);
@@ -149,6 +139,18 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
         spec3.setContent(R.id.tab3);
         spec3.setIndicator("Events");
         host.addTab(spec3);
+
+
+        if(!userID.equals(userIDLogged)){
+
+            fab.setVisibility(View.INVISIBLE);
+
+            host.getTabWidget().getChildAt(0).setVisibility(View.GONE);
+
+
+        }
+
+
 
         for(int i=0;i<host.getTabWidget().getChildCount();i++)
         {
@@ -361,6 +363,8 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
                     }
 
                 });
+
+
             }
 
             @Override
