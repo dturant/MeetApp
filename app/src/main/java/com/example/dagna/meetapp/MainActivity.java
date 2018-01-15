@@ -25,7 +25,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
@@ -99,6 +98,11 @@ public class MainActivity extends AppCompatActivity
     EditText filterDate;
     String pickedDate;
 
+    public CheckBox allEvents ;
+    public CheckBox yourEvents;
+    public CheckBox friendsEvents;
+    public CheckBox byDate;
+
     ArrayList<String> listFriendsIDs=new ArrayList<String>();
 
 
@@ -156,10 +160,13 @@ public class MainActivity extends AppCompatActivity
                 //alertDialogBuilder.setIcon(R.drawable.ic_launcher);
                 // set custom_dialog.xml to alertdialog builder
                 alertDialogBuilder.setView(dialogView);
-                final CheckBox allEvents = (CheckBox) dialogView.findViewById(R.id.all_events);
-                final CheckBox yourEvents = (CheckBox) dialogView.findViewById(R.id.your_events);
-                final CheckBox friendsEvents = (CheckBox)dialogView.findViewById(R.id.friends_events);
-                final CheckBox byDate = (CheckBox)dialogView.findViewById(R.id.by_date);
+
+                allEvents = (CheckBox) dialogView.findViewById(R.id.all_events);
+                yourEvents = (CheckBox) dialogView.findViewById(R.id.your_events);
+                friendsEvents = (CheckBox)dialogView.findViewById(R.id.friends_events);
+                byDate = (CheckBox)dialogView.findViewById(R.id.by_date);
+
+
                 filterDate = (EditText) dialogView.findViewById(R.id.filter_date);
                 filterDate.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -710,27 +717,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -821,5 +807,7 @@ public class MainActivity extends AppCompatActivity
         }, mYear, mMonth, mDay);
         mDatePicker.setTitle("Select Date");
         mDatePicker.show();
+
+        byDate.setChecked(true);
     }
 }
