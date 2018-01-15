@@ -189,9 +189,6 @@ TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescrip
 
                 });
 
-                //Log.d("data", name + " " + date + " " + time + " " + description + " "+category);
-                // TextView tv = (TextView) findViewById(R.id.marker_title);
-                // tv.setText(title);
 
             }
 
@@ -200,13 +197,6 @@ TextView eventName, eventDate,eventTime,eventLocation,eventCategory,eventDescrip
 
             }
         });
-
-
-
-
-
-
-
 
 
     }

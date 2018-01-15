@@ -57,13 +57,10 @@ public class Favorites extends AppCompatActivity {
         SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
         userID = sharedPref.getString("userID", null);
 
-
         mFirebaseStorageInstance = FirebaseStorage.getInstance();
 
         mFirebaseInstance = FirebaseDatabase.getInstance();
         mFirebaseDatabase = mFirebaseInstance.getReference("users").child(userID).child("favourites");
-
-
 
         favorites = new ArrayList<>();
         list = (ListView) findViewById(R.id.favorites_list);
@@ -81,11 +78,6 @@ public class Favorites extends AppCompatActivity {
                 for (final DataSnapshot snapshot: dataSnapshot.getChildren()) {
 
                     HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
-
-
-
-
-
 
                         String markerTitle = (String) markerHashMap.get("title");
                         listItems.add(markerTitle);

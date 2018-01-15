@@ -31,20 +31,13 @@ public class LastUsersLocation extends AsyncTask<Context, Void, Void> {
 
     public void saveLocation() throws IOException {
 
-
-
         mFirebaseInstance = FirebaseDatabase.getInstance();
 
         LatLng loc = ma.getLocation();
 
-
-
         if(!(loc==null) && !(shareLocation.equals("null"))){
             mFirebaseInstance.getReference("users").child(userID).child("location").setValue(loc);
         }
-
-
-
 
 
     }

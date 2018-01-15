@@ -99,8 +99,6 @@ public class Notifications extends AppCompatActivity {
         });
 
 
-
-
     }
 
 

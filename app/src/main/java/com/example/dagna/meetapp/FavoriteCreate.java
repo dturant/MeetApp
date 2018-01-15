@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -61,6 +62,16 @@ public class FavoriteCreate extends AppCompatActivity {
 
         String name = favoriteName.getText().toString();
         String description = favoriteDescription.getText().toString();
+
+        if(name.isEmpty() || description.isEmpty() || selectedImage == null  ){
+
+            Toast.makeText(getApplicationContext(),
+                    "Complete all fields first!", Toast.LENGTH_SHORT).show();
+
+            return;
+        }
+
+
 
 
         SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);

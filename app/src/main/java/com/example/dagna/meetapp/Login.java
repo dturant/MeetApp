@@ -83,8 +83,6 @@ public class Login extends AppCompatActivity implements
                     .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                     .build();
 
-
-
             // Initialize FirebaseAuth
             mFirebaseAuth = FirebaseAuth.getInstance();
 
@@ -119,7 +117,6 @@ public class Login extends AppCompatActivity implements
                 firebaseAuthWithGoogle(account);
             } else {
                 // Google Sign-In failed
-                Log.e(TAG, "Google Sign-In failed.");
                 Toast.makeText(Login.this, "Authentication failed.",
                         Toast.LENGTH_SHORT).show();
             }
@@ -139,7 +136,6 @@ public class Login extends AppCompatActivity implements
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithCredential", task.getException());
                             Toast.makeText(Login.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
@@ -171,7 +167,6 @@ public class Login extends AppCompatActivity implements
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
         // An unresolvable error has occurred and Google APIs (including Sign-In) will not
         // be available.
-        Log.d(TAG, "onConnectionFailed:" + connectionResult);
         Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
     }
 

@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -88,6 +89,17 @@ public class EventCreate extends AppCompatActivity {
         String description = eventDescription.getText().toString();
 
 
+        if(name.isEmpty() || date.isEmpty() || time.isEmpty() || description.isEmpty() || selectedImage == null  ){
+
+            Toast.makeText(getApplicationContext(),
+                    "Complete all fields first!", Toast.LENGTH_SHORT).show();
+
+            return;
+        }
+
+
+
+
         SharedPreferences sharedPref = getSharedPreferences("userID", MODE_PRIVATE);
         final String owner = sharedPref.getString("userID", null);
 
@@ -114,7 +126,6 @@ public class EventCreate extends AppCompatActivity {
         mFirebaseDatabase.child(markerID).child("category").setValue(category);
         mFirebaseDatabase.child(markerID).child("privacy").setValue(privacy);
         mFirebaseDatabase.child(markerID).child("owner").setValue(owner);
-        //mFirebaseInstance.getReference("users").child(userID).child("friends").child(String.valueOf(listFriends.size())).setValue(result.getText());
         mFirebaseDatabase.child(markerID).child("users").child("0").setValue(owner);
         mFirebaseStorage.child(markerID).putFile(selectedImage);
 
@@ -139,10 +150,6 @@ public class EventCreate extends AppCompatActivity {
                 }
             });
         }
-
-
-
-
 
 
         MarkerOptions marker = new MarkerOptions()
