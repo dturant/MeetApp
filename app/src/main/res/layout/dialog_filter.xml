@@ -1,53 +1,71 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-android:orientation="vertical"
-android:layout_width="300dp"
-android:layout_height="wrap_content"
-android:layout_marginBottom="16dp"
-android:layout_marginTop="16dp"
-android:layout_marginLeft="16dp"
-android:layout_marginRight="16dp">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="16dp"
+    android:layout_marginTop="16dp"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp">
 
-<CheckBox
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="All events"
-    android:padding="16dp"
-    android:layout_marginLeft="16dp"
-    android:id="@+id/all_events"/>
-<CheckBox
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Your events"
-    android:layout_marginLeft="16dp"
-    android:padding="16dp"
-    android:id="@+id/your_events"/>
-<CheckBox
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Friends' events"
-    android:layout_marginLeft="16dp"
-    android:padding="16dp"
-    android:id="@+id/friends_events"/>
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
-    <CheckBox
+    <RadioGroup
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="By date: "
+        android:id="@+id/radio_group">
+    <RadioButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="All"
+        android:padding="16dp"
+        android:layout_marginLeft="16dp"
+        android:id="@+id/all"/>
+    <RadioButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Favourites"
+        android:padding="16dp"
+        android:layout_marginLeft="16dp"
+        android:id="@+id/favourites"/>
+    <RadioButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="All events"
+        android:padding="16dp"
+        android:layout_marginLeft="16dp"
+        android:id="@+id/all_events"/>
+    <RadioButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Your events"
+        android:layout_marginLeft="16dp"
+        android:padding="16dp"
+        android:id="@+id/your_events"/>
+    <RadioButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Friends' events"
+        android:layout_marginLeft="16dp"
+        android:padding="16dp"
+        android:id="@+id/friends_events"/>
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Events by date: "
         android:padding="16dp"
         android:id="@+id/by_date"
         android:layout_marginLeft="16dp"
         />
+
+    </RadioGroup>
+
     <EditText
         android:id="@+id/filter_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="Date"
         android:focusable="false"
+        android:layout_alignBottom="@+id/radio_group"
+        android:layout_toRightOf="@+id/radio_group"
+        android:paddingBottom="16dp"
         />
-</LinearLayout>
 
-
-</LinearLayout>
+</RelativeLayout>

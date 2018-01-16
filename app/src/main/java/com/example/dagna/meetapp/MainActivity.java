@@ -31,6 +31,7 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -98,10 +99,13 @@ public class MainActivity extends AppCompatActivity
     EditText filterDate;
     String pickedDate;
 
-    public CheckBox allEvents ;
-    public CheckBox yourEvents;
-    public CheckBox friendsEvents;
-    public CheckBox byDate;
+    public RadioButton all;
+    public RadioButton favourites;
+    public RadioButton allEvents ;
+    public RadioButton yourEvents;
+    public RadioButton friendsEvents;
+    public RadioButton byDate;
+
 
     ArrayList<String> listFriendsIDs=new ArrayList<String>();
 
@@ -161,10 +165,13 @@ public class MainActivity extends AppCompatActivity
                 // set custom_dialog.xml to alertdialog builder
                 alertDialogBuilder.setView(dialogView);
 
-                allEvents = (CheckBox) dialogView.findViewById(R.id.all_events);
-                yourEvents = (CheckBox) dialogView.findViewById(R.id.your_events);
-                friendsEvents = (CheckBox)dialogView.findViewById(R.id.friends_events);
-                byDate = (CheckBox)dialogView.findViewById(R.id.by_date);
+                all = (RadioButton) dialogView.findViewById(R.id.all);
+                favourites = (RadioButton) dialogView.findViewById(R.id.favourites);
+                allEvents = (RadioButton) dialogView.findViewById(R.id.all_events);
+                yourEvents = (RadioButton) dialogView.findViewById(R.id.your_events);
+                friendsEvents = (RadioButton)dialogView.findViewById(R.id.friends_events);
+                byDate = (RadioButton)dialogView.findViewById(R.id.by_date);
+
 
 
                 filterDate = (EditText) dialogView.findViewById(R.id.filter_date);
@@ -181,20 +188,27 @@ public class MainActivity extends AppCompatActivity
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog,
                                                         int id) {
-
-                                        if(allEvents.isChecked()) {
+                                        checkedItems.clear();
+                                        if(all.isChecked()) {
                                             checkedItems.add(0);
                                         }
-                                        if(yourEvents.isChecked()){
+                                        if(favourites.isChecked()) {
                                             checkedItems.add(1);
                                         }
-                                        if(friendsEvents.isChecked()){
+                                        if(allEvents.isChecked()) {
                                             checkedItems.add(2);
                                         }
-                                        if(byDate.isChecked() && !filterDate.equals(null) ){
+                                        if(yourEvents.isChecked()){
                                             checkedItems.add(3);
+                                        }
+                                        if(friendsEvents.isChecked()){
+                                            checkedItems.add(4);
+                                        }
+                                        if(byDate.isChecked() && !filterDate.equals(null) ){
+                                            checkedItems.add(5);
                                             pickedDate = filterDate.getText().toString();
                                         }
+
 
                                         filter();
                                     }
@@ -300,7 +314,7 @@ public class MainActivity extends AppCompatActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        
+
 
         new LastUsersLocation().execute(MainActivity.this);
 
@@ -325,153 +339,206 @@ public class MainActivity extends AppCompatActivity
         return null;
     }
 
+    private void getAllEvents(){
+        DatabaseReference ref = mFirebaseInstance.getReference("markers");
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                    getEventsFromFirebase(postSnapshot);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void getYourEvents(){
+        DatabaseReference ref = mFirebaseInstance.getReference("markers");
+        //Query query = ref.orderByChild("owner").equalTo(userID);
+        //Log.d("LOL1", "LOL");
+        ref.orderByChild("owner").equalTo(userID).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
+                Log.d("New data", "new data: " + dataSnapshot.getKey());
+                getEventsFromFirebase(dataSnapshot);
+            }
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String prevChildKey) {}
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {}
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String prevChildKey) {}
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+    }
+
+    private void getFriendsEvents(){
+        //get all friends
+        DatabaseReference mdb = mFirebaseInstance.getReference("users").child(userID).child("friends");
+        mdb.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("here i am", "success here " + dataSnapshot.getChildrenCount() + " " + dataSnapshot.getKey() );
+                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                    //<YourClass> post = postSnapshot.getValue(<YourClass>.class);
+                    Log.e("Get Data", "Data from query " + postSnapshot.getValue());
+                    String friend = postSnapshot.getValue().toString();
+                    DatabaseReference ref = mFirebaseInstance.getReference("markers");
+                    ref.orderByChild("owner").equalTo(friend).addChildEventListener(new ChildEventListener() {
+                        @Override
+                        public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
+                            Log.d("New data", "new data: " + dataSnapshot.getKey());
+                            getEventsFromFirebase(dataSnapshot);
+                        }
+                        @Override
+                        public void onChildChanged(DataSnapshot dataSnapshot, String prevChildKey) {}
+
+                        @Override
+                        public void onChildRemoved(DataSnapshot dataSnapshot) {}
+
+                        @Override
+                        public void onChildMoved(DataSnapshot dataSnapshot, String prevChildKey) {}
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {}
+                    });
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+
+    private void getEventsByDate(){
+        DatabaseReference ref = mFirebaseInstance.getReference("markers");
+        //Query query = ref.orderByChild("owner").equalTo(userID);
+        //Log.d("LOL1", "LOL");
+        ref.orderByChild("date").equalTo(pickedDate).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
+                Log.d("New data", "new data: " + dataSnapshot.getKey());
+                getEventsFromFirebase(dataSnapshot);
+            }
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String prevChildKey) {}
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {}
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String prevChildKey) {}
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+
+    }
+
+    public void getFavourites(){
+        DatabaseReference ref = mFirebaseInstance.getReference("users").child(userID).child("favourites");
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    getFavouritesFromFirebase(postSnapshot);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
     private void filter(){
         Log.d("filter", "filter " + checkedItems.size() + " " + pickedDate);
         if (checkedItems.size() > 0) {
             mMap.clear();
-
-            if (checkedItems.contains(1)) { //your events
-                DatabaseReference ref = mFirebaseInstance.getReference("markers");
-                //Query query = ref.orderByChild("owner").equalTo(userID);
-                //Log.d("LOL1", "LOL");
-                ref.orderByChild("owner").equalTo(userID).addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
-                        Log.d("New data", "new data: " + dataSnapshot.getKey());
-                        getResultsFromFirebase(dataSnapshot);
-                    }
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String prevChildKey) {}
-
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {}
-
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String prevChildKey) {}
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {}
-                });
-
-            }
             if (checkedItems.contains(0)) { //all
-                DatabaseReference ref = mFirebaseInstance.getReference("markers");
-                ref.addListenerForSingleValueEvent(new ValueEventListener() {
-
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-                            getResultsFromFirebase(postSnapshot);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
+                getAllEvents();
+                getFavourites();
+            }
+            if (checkedItems.contains(1)) { //favourites
+                getFavourites();
+            }
+            if (checkedItems.contains(2)) { //all events
+                getAllEvents();
             }
 
-            if (checkedItems.contains(2)) { //friends' events
-                //get all friends
-                DatabaseReference mdb = mFirebaseInstance.getReference("users").child(userID).child("friends");
-                mdb.addListenerForSingleValueEvent(new ValueEventListener() {
-
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        Log.d("here i am", "success here " + dataSnapshot.getChildrenCount() + " " + dataSnapshot.getKey() );
-                        for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-                            //<YourClass> post = postSnapshot.getValue(<YourClass>.class);
-                            Log.e("Get Data", "Data from query " + postSnapshot.getValue());
-                            String friend = postSnapshot.getValue().toString();
-                            DatabaseReference ref = mFirebaseInstance.getReference("markers");
-                            ref.orderByChild("owner").equalTo(friend).addChildEventListener(new ChildEventListener() {
-                                @Override
-                                public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
-                                    Log.d("New data", "new data: " + dataSnapshot.getKey());
-                                    getResultsFromFirebase(dataSnapshot);
-                                }
-                                @Override
-                                public void onChildChanged(DataSnapshot dataSnapshot, String prevChildKey) {}
-
-                                @Override
-                                public void onChildRemoved(DataSnapshot dataSnapshot) {}
-
-                                @Override
-                                public void onChildMoved(DataSnapshot dataSnapshot, String prevChildKey) {}
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {}
-                            });
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
+            if (checkedItems.contains(3)) { //your events
+                getYourEvents();
             }
 
-            if (checkedItems.contains(3)) { //by date
-                DatabaseReference ref = mFirebaseInstance.getReference("markers");
-                //Query query = ref.orderByChild("owner").equalTo(userID);
-                //Log.d("LOL1", "LOL");
-                ref.orderByChild("date").equalTo(pickedDate).addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
-                        Log.d("New data", "new data: " + dataSnapshot.getKey());
-                        getResultsFromFirebase(dataSnapshot);
-                    }
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String prevChildKey) {}
-
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {}
-
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String prevChildKey) {}
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {}
-                });
-
+            if (checkedItems.contains(4)) { //friends' events
+                getFriendsEvents();
             }
+
+            if (checkedItems.contains(5)) { //by date
+                getEventsByDate();
+            }
+
+
         }
     }
 
 
-    private void getResultsFromFirebase(DataSnapshot snapshot) {
+    private void getEventsFromFirebase(DataSnapshot snapshot) {
 
         if (snapshot.exists()) {
 
-           // for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+            // for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
 
-                HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
-                try {
-                    Date markerDay = new SimpleDateFormat("dd/MM/yyyy").parse(markerHashMap.get("date").toString());
-                    ArrayList<String> invited = (ArrayList<String>) markerHashMap.get("users");
+            HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
+            try {
+                Date markerDay = new SimpleDateFormat("dd/MM/yyyy").parse(markerHashMap.get("date").toString());
+                ArrayList<String> invited = (ArrayList<String>) markerHashMap.get("users");
 
 
-                    String privacy;
-                    try{
-                        privacy = markerHashMap.get("privacy").toString();
-                    }catch (Exception e){
-                        privacy = "";
-                    }
-
-                    if ((new Date().before(markerDay) || new Date().equals(markerDay)) && (privacy.equals("Public") || (privacy.equals("Private") && (markerHashMap.get("owner").toString().equals(userID) || invited.contains(userID)) ) ||
-                            (privacy.equals("Friends") && (markerHashMap.get("owner").toString().equals(userID) || invited.contains(userID) || listFriendsIDs.contains(markerHashMap.get("owner").toString())) ) )  ) {
-                        HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
-
-                        MarkerOptions markerOptions = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_event)).snippet("event").title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"), markerLoc.get("longitude")));
-                        mMap.addMarker(markerOptions);
-                    }
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                String privacy;
+                try{
+                    privacy = markerHashMap.get("privacy").toString();
+                }catch (Exception e){
+                    privacy = "";
                 }
-          //  }
+
+                if ((new Date().before(markerDay) || new Date().equals(markerDay)) && (privacy.equals("Public") || (privacy.equals("Private") && (markerHashMap.get("owner").toString().equals(userID) || invited.contains(userID)) ) ||
+                        (privacy.equals("Friends") && (markerHashMap.get("owner").toString().equals(userID) || invited.contains(userID) || listFriendsIDs.contains(markerHashMap.get("owner").toString())) ) )  ) {
+                    HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
+
+                    MarkerOptions markerOptions = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_event)).snippet("event").title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"), markerLoc.get("longitude")));
+                    mMap.addMarker(markerOptions);
+                }
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            //  }
+        }
+    }
+
+    private void getFavouritesFromFirebase(DataSnapshot snapshot) {
+
+        if (snapshot.exists()) {
+            HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
+
+            HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
+
+            MarkerOptions markerOptions = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_star)).snippet("favorite").title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"), markerLoc.get("longitude")));
+            mMap.addMarker(markerOptions);
+
         }
     }
 
