@@ -23,11 +23,9 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -147,7 +145,6 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         checkedItems = new ArrayList<>();
-        //filterDate = (EditText) findViewById(R.id.filter_date);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -158,11 +155,7 @@ public class MainActivity extends AppCompatActivity
                 View dialogView = li.inflate(R.layout.dialog_filter, null);
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
                         context);
-                // set title
                 alertDialogBuilder.setTitle("Filter");
-                // set custom dialog icon
-                //alertDialogBuilder.setIcon(R.drawable.ic_launcher);
-                // set custom_dialog.xml to alertdialog builder
                 alertDialogBuilder.setView(dialogView);
 
                 all = (RadioButton) dialogView.findViewById(R.id.all);
@@ -181,7 +174,7 @@ public class MainActivity extends AppCompatActivity
                         pickDate();
                     }
                 });
-                // set dialog message
+
                 alertDialogBuilder
                         .setCancelable(false)
                         .setPositiveButton("OK",
@@ -220,9 +213,8 @@ public class MainActivity extends AppCompatActivity
                                         dialog.cancel();
                                     }
                                 });
-                // create alert dialog
+
                 AlertDialog alertDialog = alertDialogBuilder.create();
-                // show it
                 alertDialog.show();
             }
 
@@ -359,12 +351,9 @@ public class MainActivity extends AppCompatActivity
 
     private void getYourEvents(){
         DatabaseReference ref = mFirebaseInstance.getReference("markers");
-        //Query query = ref.orderByChild("owner").equalTo(userID);
-        //Log.d("LOL1", "LOL");
         ref.orderByChild("owner").equalTo(userID).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
-                Log.d("New data", "new data: " + dataSnapshot.getKey());
                 getEventsFromFirebase(dataSnapshot);
             }
             @Override
@@ -382,22 +371,20 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void getFriendsEvents(){
-        //get all friends
+
         DatabaseReference mdb = mFirebaseInstance.getReference("users").child(userID).child("friends");
         mdb.addListenerForSingleValueEvent(new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d("here i am", "success here " + dataSnapshot.getChildrenCount() + " " + dataSnapshot.getKey() );
+
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-                    //<YourClass> post = postSnapshot.getValue(<YourClass>.class);
-                    Log.e("Get Data", "Data from query " + postSnapshot.getValue());
+
                     String friend = postSnapshot.getValue().toString();
                     DatabaseReference ref = mFirebaseInstance.getReference("markers");
                     ref.orderByChild("owner").equalTo(friend).addChildEventListener(new ChildEventListener() {
                         @Override
                         public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
-                            Log.d("New data", "new data: " + dataSnapshot.getKey());
                             getEventsFromFirebase(dataSnapshot);
                         }
                         @Override
@@ -424,12 +411,10 @@ public class MainActivity extends AppCompatActivity
 
     private void getEventsByDate(){
         DatabaseReference ref = mFirebaseInstance.getReference("markers");
-        //Query query = ref.orderByChild("owner").equalTo(userID);
-        //Log.d("LOL1", "LOL");
+
         ref.orderByChild("date").equalTo(pickedDate).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String prevChildKey) {
-                Log.d("New data", "new data: " + dataSnapshot.getKey());
                 getEventsFromFirebase(dataSnapshot);
             }
             @Override
@@ -465,7 +450,7 @@ public class MainActivity extends AppCompatActivity
         });
     }
     private void filter(){
-        Log.d("filter", "filter " + checkedItems.size() + " " + pickedDate);
+
         if (checkedItems.size() > 0) {
             mMap.clear();
             if (checkedItems.contains(0)) { //all
@@ -499,8 +484,6 @@ public class MainActivity extends AppCompatActivity
     private void getEventsFromFirebase(DataSnapshot snapshot) {
 
         if (snapshot.exists()) {
-
-            // for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
 
             HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
             try {
@@ -692,14 +675,8 @@ public class MainActivity extends AppCompatActivity
                     HashMap<String, Object> markerHashMap = (HashMap<String, Object>) snapshot.getValue();
                     HashMap<String, Double> markerLoc = (HashMap<String, Double>) markerHashMap.get("location");
 
-
-
                     MarkerOptions markerOptions = new MarkerOptions().icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_star)).snippet("favorite").title(snapshot.getKey()).position(new LatLng(markerLoc.get("latitude"), markerLoc.get("longitude")));
                     mMap.addMarker(markerOptions);
-
-
-
-
                 }
             }
 
@@ -708,9 +685,6 @@ public class MainActivity extends AppCompatActivity
 
             }
         });
-
-
-
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -823,9 +797,6 @@ public class MainActivity extends AppCompatActivity
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putString("userID", null);
             editor.commit();
-
-//            Intent intent = new Intent(this, Login.class);
-//            startActivity(intent);
 
             mFirebaseAuth.signOut();
             startActivity(new Intent(this, Login.class));

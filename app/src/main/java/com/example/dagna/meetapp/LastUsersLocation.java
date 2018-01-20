@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -20,7 +19,6 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class LastUsersLocation extends AsyncTask<Context, Void, Void> {
 
-    private DatabaseReference mFirebaseDatabase;
     private FirebaseDatabase mFirebaseInstance;
     public String userID;
     public String shareLocation;
@@ -63,7 +61,6 @@ public class LastUsersLocation extends AsyncTask<Context, Void, Void> {
                                 LatLng ltlg =  new LatLng(friendLoc.get("latitude"),friendLoc.get("longitude"));
                                 ma.setFriendMarker(friendID,ltlg);
                             }
-
                         }
 
                         @Override
@@ -72,8 +69,6 @@ public class LastUsersLocation extends AsyncTask<Context, Void, Void> {
                         }
                     });
                 }
-
-
 
             }
 

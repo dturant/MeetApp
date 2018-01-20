@@ -22,7 +22,6 @@ public class Settings extends AppCompatActivity {
         SharedPreferences sharedPref = getSharedPreferences("showLocation", MODE_PRIVATE);
         String showLocation = sharedPref.getString("showLocation", "null");
 
-
         Switch switchButtonLocation = (Switch) findViewById(R.id.location);
 
         if(!showLocation.equals("null")){

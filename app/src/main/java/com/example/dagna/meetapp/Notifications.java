@@ -20,11 +20,10 @@ import java.util.ArrayList;
 
 public class Notifications extends AppCompatActivity {
 
-    //LIST OF ARRAY STRINGS WHICH WILL SERVE AS LIST ITEMS
+
     ArrayList<String> listItems=new ArrayList<String>();
     ArrayList<String> listItemsIDs=new ArrayList<String>();
 
-    //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
     ArrayAdapter<String> adapter;
 
 
@@ -59,7 +58,6 @@ public class Notifications extends AppCompatActivity {
 
                 for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
 
-
                     listItems.add((String) snapshot.child("user_name").getValue() + " added an event!");
                     listItemsIDs.add((String) snapshot.child("event").getValue());
 
@@ -68,8 +66,6 @@ public class Notifications extends AppCompatActivity {
                 adapter=new ArrayAdapter<String>(Notifications.this,
                         android.R.layout.simple_list_item_1,
                         listItems);
-
-
 
                 list.setAdapter(adapter);
 
@@ -88,7 +84,6 @@ public class Notifications extends AppCompatActivity {
                     }
 
                 });
-
 
             }
 

@@ -57,19 +57,15 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
     private DatabaseReference mFirebaseDatabaseMarkers;
     private DatabaseReference mFirebaseDatabaseFriends;
     private FirebaseDatabase mFirebaseInstance;
-    //LIST OF ARRAY STRINGS WHICH WILL SERVE AS LIST ITEMS
+
     ArrayList<String> listItems=new ArrayList<String>();
     ArrayList<String> listItemsKeys=new ArrayList<String>();
 
-    //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
     ArrayAdapter<String> adapter;
 
-
-    //LIST OF ARRAY STRINGS WHICH WILL SERVE AS LIST ITEMS
     ArrayList<String> listFriends=new ArrayList<String>();
     ArrayList<String> listFriendsIDs=new ArrayList<String>();
 
-    //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
     ArrayAdapter<String> adapterFriends;
 
     public final static String EXTRA_MESSAGE = "com.example.dagna.meetapp.MESSAGE";
@@ -86,15 +82,11 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
     private Uri selectedImage = null;
     public ImageView profilePhoto;
     
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
         userID = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
@@ -106,15 +98,13 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
 
                 if (!haveCameraPermission()){
                     ActivityCompat.requestPermissions(Profile.this,new String[]{android.Manifest.permission.CAMERA}, PERMISSION_REQUEST_CAMERA);
                 }
-                mScannerView = new ZXingScannerView(Profile.this);   // Programmatically initialize the scanner view<br />
+                mScannerView = new ZXingScannerView(Profile.this);
                 setContentView(mScannerView);
-                startCamera();// Start camera<br />
+                startCamera();
             }
         });
 
@@ -142,18 +132,11 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
 
         if(!userID.equals(userIDLogged)){
-
             fab.setVisibility(View.INVISIBLE);
-
             host.getTabWidget().getChildAt(0).setVisibility(View.GONE);
-
-
         }
 
-
-
-        for(int i=0;i<host.getTabWidget().getChildCount();i++)
-        {
+        for(int i=0;i<host.getTabWidget().getChildCount();i++) {
             TextView tv = (TextView) host.getTabWidget().getChildAt(i).findViewById(android.R.id.title);
             tv.setTextColor(getResources().getColor(R.color.colorText, null));
         }
@@ -173,17 +156,11 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
         mFirebaseStorage = mFirebaseStorageInstance.getReference("users").child(userID);
 
 
-
         mFirebaseStorage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
             @Override
             public void onSuccess(Uri uri) {
-
-
                 Glide.with(Profile.this).using(new FirebaseImageLoader()).load(mFirebaseStorage).into(profilePhoto);
-
-
-
             }
 
         }).addOnFailureListener(new OnFailureListener() {
@@ -223,8 +200,6 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
                     ImageView myImage = (ImageView) findViewById(R.id.QRCode);
                     myImage.setImageBitmap(myBitmap);
                 }
-
-
             }
 
             @Override
@@ -280,11 +255,7 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
                         android.R.layout.simple_list_item_1,
                         listItems);
 
-
-
                 list.setAdapter(adapter);
-
-
 
                 list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -318,8 +289,6 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
                 for (DataSnapshot snapshot: dataSnapshot.getChildren()) {
 
-
-
                     mFirebaseInstance.getReference("users").child((String) snapshot.getKey()).child("nome").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -334,18 +303,13 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
                     listFriendsIDs.add((String) snapshot.getKey());
 
-
                 }
 
                 adapterFriends=new ArrayAdapter<String>(Profile.this,
                         android.R.layout.simple_list_item_1,
                         listFriends);
 
-
-
                 list.setAdapter(adapterFriends);
-
-
 
                 list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -359,11 +323,9 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
                         intent.putExtra(EXTRA_MESSAGE, message);
                         startActivity(intent);
 
-
                     }
 
                 });
-
 
             }
 
@@ -372,8 +334,6 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
             }
         });
-
-
     }
 
 
@@ -386,7 +346,7 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
-        // This is because the dialog was cancelled when we recreated the activity.
+
         if (permissions.length == 0 || grantResults.length == 0)
             return;
 
@@ -410,8 +370,8 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
     public void startCamera()
     {
-        mScannerView.setResultHandler(this); // Register ourselves as a handler for scan results.
-        mScannerView.startCamera();          // Start camera on resume
+        mScannerView.setResultHandler(this);
+        mScannerView.startCamera();
     }
 
     @Override
@@ -448,11 +408,7 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
             }
         });
-
     }
-
-
-
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     protected void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
@@ -466,20 +422,15 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImage);
                         profilePhoto.setImageBitmap(bitmap);
 
-
                         mFirebaseStorageInstance = FirebaseStorage.getInstance();
                         mFirebaseStorage = mFirebaseStorageInstance.getReference("users");
-
                         mFirebaseStorage.child(userID).delete();
-
                         mFirebaseStorage.child(userID).putFile(selectedImage);
 
 
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
-
                 }
 
                 break;
@@ -510,7 +461,6 @@ public class Profile extends AppCompatActivity implements ZXingScannerView.Resul
 
         Intent it = new Intent(Profile.this, MainActivity.class);
         startActivity(it);
-
         finish();
     }
 
